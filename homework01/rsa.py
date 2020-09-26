@@ -49,8 +49,8 @@ def multiplicative_inverse(e: int, phi: int) -> int:
     """
 
     def gcd_extended(a: int, b: int) -> tp.Tuple[int, int, int]:
-        if b == 0:
-            return a, 0, 1
+        if a % b == 0:
+            return b, 0, 1
         if b > a:
             a, b = b, a
         g, x_pr, y_pr = gcd_extended(b, a % b)
@@ -58,7 +58,7 @@ def multiplicative_inverse(e: int, phi: int) -> int:
         y = x_pr - y_pr * (a // b)
         return g, x, y
 
-    return (gcd_extended(e, phi)[1] + phi) % phi
+    return (gcd_extended(e, phi)[2] + phi) % phi
 
 
 def generate_keypair(p: int, q: int) -> tp.Tuple[tp.Tuple[int, int], tp.Tuple[int, int]]:
