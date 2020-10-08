@@ -43,3 +43,9 @@ class RSATestCase(unittest.TestCase):
         self.assertEqual(
             ((9678731, 11188147), (1804547, 11188147)), rsa.generate_keypair(3259, 3433)
         )
+
+    def test_generate_keypair(self):
+        self.assertEqual((1, -1, 6), rsa.gcd_extended(7, 41))
+        self.assertEqual((7, 0, 1), rsa.gcd_extended(7, 42))
+        self.assertEqual((3, -1, 21), rsa.gcd_extended(15, 312))
+        self.assertEqual((3, -1, 21), rsa.gcd_extended(15, 312))

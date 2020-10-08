@@ -15,7 +15,7 @@ def is_prime(n: int) -> bool:
     """
     if n > 1:
         for i in range(2, int(n ** 0.5) + 1):
-            if not n % i:
+            if n % i != 0:
                 return False
         return True
     else:
@@ -39,6 +39,27 @@ def gcd(a: int, b: int) -> int:
     return a + b
 
 
+def gcd_extended(a: int, b: int) -> tp.Tuple[int, int, int]:
+    """
+    GCD Extended
+
+    >>> gcd_extended(7, 41)
+    (1, -1, 6)
+    """
+    if b > a:
+        a, b = b, a
+    if a == 0:
+        return 0, 0, 0
+    if b == 0:
+        return a, 1, 0
+    if a % b == 0:
+        return b, 0, 1
+    g, x_pr, y_pr = gcd_extended(b, a % b)
+    x = y_pr
+    y = x_pr - y_pr * (a // b)
+    return g, x, y
+
+
 def multiplicative_inverse(e: int, phi: int) -> int:
     """
     Euclid's extended algorithm for finding the multiplicative
@@ -47,16 +68,6 @@ def multiplicative_inverse(e: int, phi: int) -> int:
     >>> multiplicative_inverse(7, 40)
     23
     """
-
-    def gcd_extended(a: int, b: int) -> tp.Tuple[int, int, int]:
-        if a % b == 0:
-            return b, 0, 1
-        if b > a:
-            a, b = b, a
-        g, x_pr, y_pr = gcd_extended(b, a % b)
-        x = y_pr
-        y = x_pr - y_pr * (a // b)
-        return g, x, y
 
     return (gcd_extended(e, phi)[2] + phi) % phi
 
