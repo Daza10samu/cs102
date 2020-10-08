@@ -22,9 +22,9 @@ def encrypt_caesar(plaintext: str, shift: int = 3) -> str:
         char_index = ord(char)
         is_lower = char.islower()
         if is_lower:
-            alphabet_start_number = 97
+            alphabet_start_number = ord('a')
         else:
-            alphabet_start_number = 65
+            alphabet_start_number = ord('A')
         letter_number = char_index - alphabet_start_number
         cipher_number = (letter_number + shift) % 26
         ciphertext += chr(cipher_number + alphabet_start_number)
@@ -52,9 +52,9 @@ def decrypt_caesar(ciphertext: str, shift: int = 3) -> str:
         char_index = ord(char)
         is_lower = char.islower()
         if is_lower:
-            alphabet_start_number = 97
+            alphabet_start_number = ord('a')
         else:
-            alphabet_start_number = 65
+            alphabet_start_number = ord('A')
         cipher_number = char_index - alphabet_start_number
         letter_number = (26 + cipher_number - shift) % 26
         plaintext += chr(letter_number + alphabet_start_number)
