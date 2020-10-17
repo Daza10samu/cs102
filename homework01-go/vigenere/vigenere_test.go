@@ -1,4 +1,4 @@
-package caesar
+package vigenere
 
 import "testing"
 
