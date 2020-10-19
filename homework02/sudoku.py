@@ -1,4 +1,6 @@
 from typing import Tuple, List, Set, Optional
+from random import sample
+from multiprocessing import Queue, Process
 
 
 def read_sudoku(filename: str) -> List[List[str]]:
@@ -28,7 +30,11 @@ def group(values: List[str], n: int) -> List[List[str]]:
     >>> group([1,2,3,4,5,6,7,8,9], 3)
     [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     """
-    pass
+    result = []
+    block_size = len(values) // n
+    for i in range(n):
+        result.append(values[i * block_size:(i + 1) * block_size])
+    return result
 
 
 def get_row(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
@@ -41,7 +47,7 @@ def get_row(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     >>> get_row([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']], (2, 0))
     ['.', '8', '9']
     """
-    pass
+    return grid[pos[0]]
 
 
 def get_col(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
@@ -54,7 +60,7 @@ def get_col(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     >>> get_col([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']], (0, 2))
     ['3', '6', '9']
     """
-    pass
+    return [i[pos[1]] for i in grid]
 
 
 def get_block(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
@@ -68,7 +74,11 @@ def get_block(grid: List[List[str]], pos: Tuple[int, int]) -> List[str]:
     >>> get_block(grid, (8, 8))
     ['2', '8', '.', '.', '.', '5', '.', '7', '9']
     """
-    pass
+    result = []
+    for i in range(3 * (pos[0] // 3), 3 * (pos[0] // 3 + 1)):
+        for j in range(3 * (pos[1] // 3), 3 * (pos[1] // 3 + 1)):
+            result.append(grid[i][j])
+    return result
 
 
 def find_empty_positions(grid: List[List[str]]) -> Optional[Tuple[int, int]]:
@@ -81,7 +91,11 @@ def find_empty_positions(grid: List[List[str]]) -> Optional[Tuple[int, int]]:
     >>> find_empty_positions([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']])
     (2, 0)
     """
-    pass
+    for row_index in range(len(grid)):
+        row = grid[row_index]
+        for col_index in range(len(row)):
+            if row[col_index] == '.':
+                return row_index, col_index
 
 
 def find_possible_values(grid: List[List[str]], pos: Tuple[int, int]) -> Set[str]:
@@ -95,7 +109,11 @@ def find_possible_values(grid: List[List[str]], pos: Tuple[int, int]) -> Set[str
     >>> values == {'2', '5', '9'}
     True
     """
-    pass
+    values = {'1', '2', '3', '4', '5', '6', '7', '8', '9'}
+    for i in get_col(grid, pos) + get_row(grid, pos) + get_block(grid, pos):
+        if i in values:
+            values.remove(i)
+    return values
 
 
 def solve(grid: List[List[str]]) -> Optional[List[List[str]]]:
@@ -111,13 +129,47 @@ def solve(grid: List[List[str]]) -> Optional[List[List[str]]]:
     >>> solve(grid)
     [['5', '3', '4', '6', '7', '8', '9', '1', '2'], ['6', '7', '2', '1', '9', '5', '3', '4', '8'], ['1', '9', '8', '3', '4', '2', '5', '6', '7'], ['8', '5', '9', '7', '6', '1', '4', '2', '3'], ['4', '2', '6', '8', '5', '3', '7', '9', '1'], ['7', '1', '3', '9', '2', '4', '8', '5', '6'], ['9', '6', '1', '5', '3', '7', '2', '8', '4'], ['2', '8', '7', '4', '1', '9', '6', '3', '5'], ['3', '4', '5', '2', '8', '6', '1', '7', '9']]
     """
-    pass
+    pos = find_empty_positions(grid)
+    if pos is None:
+        return grid
+    grid_next = []
+    for row in grid:
+        grid_next.append(row.copy())
+    for value in find_possible_values(grid, pos):
+        grid_next[pos[0]][pos[1]] = value
+        result = solve(grid_next)
+        if result:
+            return result
 
 
 def check_solution(solution: List[List[str]]) -> bool:
     """ Если решение solution верно, то вернуть True, в противном случае False """
     # TODO: Add doctests with bad puzzles
-    pass
+    for row in solution:
+        for i in row:
+            if i == '.':
+                return False
+    for row in solution:
+        values = set()
+        for i in row:
+            if i in values:
+                return False
+            values.add(i)
+    columns = [get_col(solution, [0, i]) for i in range(9)]
+    for col in columns:
+        values = set()
+        for i in col:
+            if i in values:
+                return False
+            values.add(i)
+    blocks = [get_block(solution, (i // 9, i % 9)) for i in range(0, 25, 3)]
+    for block in blocks:
+        values = set()
+        for i in block:
+            if i in values:
+                return False
+            values.add(i)
+    return True
 
 
 def generate_sudoku(N: int) -> List[List[str]]:
@@ -142,7 +194,31 @@ def generate_sudoku(N: int) -> List[List[str]]:
     >>> check_solution(solution)
     True
     """
-    pass
+    if N == 0:
+        return [['.' for _ in range(9)] for _ in range(9)]
+    if N > 81:
+        N = 81
+    succeed = False
+    while not succeed:
+        positions = sample([i for i in range(81)], k=N)
+        grid = [['.' for _ in range(9)] for _ in range(9)]
+        for i in positions:
+            ok = False
+            for num in range(1, 10):
+                if num in get_row(grid, (i // 9, i % 9)) or num in get_block(grid, (i // 9, i % 9)) or num in get_col(
+                        grid, (i // 9, i % 9)):
+                    continue
+                else:
+                    grid[i // 9][i % 9] = num
+                    ok = True
+                    break
+            if not ok:
+                break
+        if ok:
+            solution = solve(grid)
+            if solution:
+                succeed = True
+    return grid
 
 
 if __name__ == '__main__':
