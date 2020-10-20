@@ -1,6 +1,6 @@
 name: CS102 Workflow
 
-on: [push]
+on: [pull_request]
 
 jobs:
   build:
