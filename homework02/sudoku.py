@@ -16,8 +16,7 @@ def display(grid: List[List[str]]) -> None:
     for row in range(9):
         print(
             "".join(
-                grid[row][col].center(width) + ("|" if str(col) in "25" else "")
-                for col in range(9)
+                grid[row][col].center(width) + ("|" if str(col) in "25" else "") for col in range(9)
             )
         )
         if str(row) in "25":
@@ -37,7 +36,7 @@ def group(values: List[str], n: int) -> List[List[str]]:
     result = []
     block_size = len(values) // n
     for i in range(n):
-        result.append(values[i * block_size: (i + 1) * block_size])
+        result.append(values[i * block_size : (i + 1) * block_size])
     return result
 
 
@@ -213,13 +212,13 @@ def generate_sudoku(N: int) -> List[List[str]]:
             ok = False
             for num in range(1, 10):
                 if (
-                        num in get_row(grid, (i // 9, i % 9))
-                        or num in get_block(grid, (i // 9, i % 9))
-                        or num in get_col(grid, (i // 9, i % 9))
+                    num in get_row(grid, (i // 9, i % 9))
+                    or num in get_block(grid, (i // 9, i % 9))
+                    or num in get_col(grid, (i // 9, i % 9))
                 ):
                     continue
                 else:
-                    grid[i // 9][i % 9] = num
+                    grid[i // 9][i % 9] = str(num)
                     ok = True
                     break
             if not ok:
