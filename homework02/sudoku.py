@@ -142,7 +142,7 @@ def solve(grid: List[List[str]]) -> Optional[List[List[str]]]:
     for value in find_possible_values(grid, pos):
         grid_next[pos[0]][pos[1]] = value
         result = solve(grid_next)
-        if result:
+        if not result is None:
             return result
     return None
 
@@ -212,9 +212,9 @@ def generate_sudoku(N: int) -> List[List[str]]:
             ok = False
             for num in range(1, 10):
                 if (
-                    num in get_row(grid, (i // 9, i % 9))
-                    or num in get_block(grid, (i // 9, i % 9))
-                    or num in get_col(grid, (i // 9, i % 9))
+                    str(num) in get_row(grid, (i // 9, i % 9))
+                    or str(num) in get_block(grid, (i // 9, i % 9))
+                    or str(num) in get_col(grid, (i // 9, i % 9))
                 ):
                     continue
                 else:
