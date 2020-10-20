@@ -17,8 +17,8 @@ jobs:
         pip install black mypy pylint
     - name: Run black
       run: |
-    - name: Run mypy
         black -l 100 --check --diff --color --exclude "test*" ${{ github.head_ref }}
+    - name: Run mypy
       run: |
         mypy ${{ github.head_ref }}
     - name: Run pylint
