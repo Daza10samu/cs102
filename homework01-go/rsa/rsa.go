@@ -23,7 +23,7 @@ func isPrime(n int) bool {
 	}
 	var i int
 	i = 2
-	for ; i < int(math.Sqrt(float64(n))); i++ {
+	for ; i < int(math.Sqrt(float64(n)))+1; i++ {
 		if n%i == 0 {
 			return false
 		}
