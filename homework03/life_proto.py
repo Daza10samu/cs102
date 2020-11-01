@@ -11,7 +11,7 @@ Grid = tp.List[Cells]
 
 class GameOfLife:
     def __init__(
-            self, width: int = 640, height: int = 480, cell_size: int = 10, speed: int = 10
+        self, width: int = 640, height: int = 480, cell_size: int = 10, speed: int = 10
     ) -> None:
         self.width = width
         self.height = height
@@ -84,7 +84,10 @@ class GameOfLife:
             Матрица клеток размером `cell_height` х `cell_width`.
         """
         if randomize:
-            return [[random.randint(0, 1) for _ in range(self.cell_width)] for _ in range(self.cell_height)]
+            return [
+                [random.randint(0, 1) for _ in range(self.cell_width)]
+                for _ in range(self.cell_height)
+            ]
         else:
             return [[0] * self.cell_width for _ in range(self.cell_height)]
 
@@ -95,13 +98,27 @@ class GameOfLife:
         for row_id in range(self.cell_height):
             for col_id in range(self.cell_width):
                 if self.grid[row_id][col_id] == 1:
-                    pygame.draw.rect(self.screen, pygame.Color('black'),
-                                     pygame.Rect(self.cell_size * col_id, self.cell_size * row_id, self.cell_size,
-                                                 self.cell_size))
+                    pygame.draw.rect(
+                        self.screen,
+                        pygame.Color("green"),
+                        pygame.Rect(
+                            self.cell_size * col_id + 1,
+                            self.cell_size * row_id + 1,
+                            self.cell_size - 1,
+                            self.cell_size - 1,
+                        ),
+                    )
                 else:
-                    pygame.draw.rect(self.screen, pygame.Color('white'),
-                                     pygame.Rect(self.cell_size * col_id, self.cell_size * row_id, self.cell_size,
-                                                 self.cell_size))
+                    pygame.draw.rect(
+                        self.screen,
+                        pygame.Color("white"),
+                        pygame.Rect(
+                            self.cell_size * col_id + 1,
+                            self.cell_size * row_id + 1,
+                            self.cell_size - 1,
+                            self.cell_size - 1,
+                        ),
+                    )
 
     def get_neighbours(self, cell: Cell) -> Cells:
         """
@@ -141,32 +158,49 @@ class GameOfLife:
             if cell[1] == 0:
                 return [self.grid[1][0], self.grid[0][1], self.grid[1][1]]
             elif cell[1] == self.cell_width - 1:
-                return [self.grid[1][self.cell_width - 1], self.grid[0][self.cell_width - 2],
-                        self.grid[1][self.cell_width - 2]]
+                return [
+                    self.grid[1][self.cell_width - 1],
+                    self.grid[0][self.cell_width - 2],
+                    self.grid[1][self.cell_width - 2],
+                ]
             else:
-                return [self.grid[0][j] for j in [cell[1] - 1, cell[1] + 1]] + [self.grid[1][j] for j in
-                                                                                [cell[1] - 1, cell[1], cell[1] + 1]]
+                return [self.grid[0][j] for j in [cell[1] - 1, cell[1] + 1]] + [
+                    self.grid[1][j] for j in [cell[1] - 1, cell[1], cell[1] + 1]
+                ]
         elif cell[0] == self.cell_height - 1:
             if cell[1] == 0:
-                return [self.grid[self.cell_height - 2][0], self.grid[self.cell_height - 1][1],
-                        self.grid[self.cell_height - 2][1]]
+                return [
+                    self.grid[self.cell_height - 2][0],
+                    self.grid[self.cell_height - 1][1],
+                    self.grid[self.cell_height - 2][1],
+                ]
             elif cell[1] == self.cell_width - 1:
-                return [self.grid[self.cell_height - 2][self.cell_width - 1],
-                        self.grid[self.cell_height - 1][self.cell_width - 2],
-                        self.grid[self.cell_height - 2][self.cell_width - 2]]
+                return [
+                    self.grid[self.cell_height - 2][self.cell_width - 1],
+                    self.grid[self.cell_height - 1][self.cell_width - 2],
+                    self.grid[self.cell_height - 2][self.cell_width - 2],
+                ]
             else:
                 return [self.grid[self.cell_height - 1][j] for j in [cell[1] - 1, cell[1] + 1]] + [
-                    self.grid[self.cell_height - 2][j] for j in [cell[1] - 1, cell[1], cell[1] + 1]]
+                    self.grid[self.cell_height - 2][j] for j in [cell[1] - 1, cell[1], cell[1] + 1]
+                ]
         else:
             if cell[1] == 0:
-                return [self.grid[i][j] for i in (cell[0] - 1, cell[0] + 1) for j in range(0, 2)] + [
-                    self.grid[cell[0]][1]]
+                return [
+                    self.grid[i][j] for i in (cell[0] - 1, cell[0] + 1) for j in range(0, 2)
+                ] + [self.grid[cell[0]][1]]
             elif cell[1] == self.cell_width - 1:
-                return [self.grid[i][j] for i in (cell[0] - 1, cell[0] + 1) for j in
-                        range(self.cell_width - 2, self.cell_width)] + [self.grid[cell[0]][self.cell_width - 2]]
+                return [
+                    self.grid[i][j]
+                    for i in (cell[0] - 1, cell[0] + 1)
+                    for j in range(self.cell_width - 2, self.cell_width)
+                ] + [self.grid[cell[0]][self.cell_width - 2]]
             else:
-                return [self.grid[i][j] for i in (cell[0] - 1, cell[0] + 1) for j in
-                        range(cell[1] - 1, cell[1] + 2)] + [self.grid[cell[0]][j] for j in (cell[1] - 1, cell[1] + 1)]
+                return [
+                    self.grid[i][j]
+                    for i in (cell[0] - 1, cell[0] + 1)
+                    for j in range(cell[1] - 1, cell[1] + 2)
+                ] + [self.grid[cell[0]][j] for j in (cell[1] - 1, cell[1] + 1)]
 
     def get_next_generation(self) -> Grid:
         """
@@ -188,6 +222,6 @@ class GameOfLife:
         return new_grid
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     game = GameOfLife(cell_size=40)
     game.run()
