@@ -157,7 +157,7 @@ class GameOfLife:
                 line_stripped = line.strip('\n')
                 if length == 0:
                     length = len(line_stripped)
-                if len(line_stripped) != length or set(line_stripped) != {'0', '1'}:
+                if len(line_stripped) != length or (set(line_stripped) != {'0', '1'} and set(line_stripped)!={'1'} and set(line_stripped)!={'0'}):
                     raise ValueError('Формат файла не подходит')
                 grid.append([])
                 for char in line_stripped:
