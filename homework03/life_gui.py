@@ -2,10 +2,11 @@ import pygame
 from life import GameOfLife
 from pygame.locals import *
 from ui import UI
+import pathlib
 
 
 class GUI(UI):
-    def __init__(self, life: GameOfLife, cell_size: int = 10, speed: int = 10) -> None:
+    def __init__(self, life: GameOfLife, cell_size: int = 10, speed: int = 10, save_path: str = 'grid') -> None:
         super().__init__(life)
         self.cell_size = cell_size
         self.width = self.life.cols * cell_size
@@ -13,6 +14,7 @@ class GUI(UI):
         self.screen_size = self.width, self.height
         self.screen = pygame.display.set_mode(self.screen_size)
         self.speed = speed
+        self.save_path = pathlib.Path(save_path)
 
     def draw_lines(self) -> None:
         # Copy from previous assignment
@@ -57,12 +59,22 @@ class GUI(UI):
 
         running = True
         paused = False
+        is_ctrl_pressed = False
         while running:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     running = False
-                if event.type == KEYUP and event.key == K_SPACE:
+                if event.type == KEYDOWN and event.key == K_r:
+                    self.life.curr_generation = self.life.create_grid(randomize=True)
+                    paused = False
+                if event.type == KEYDOWN and event.key == K_SPACE:
                     paused = bool(paused ^ 1)
+                if event.type == KEYDOWN and event.key == K_LCTRL:
+                    is_ctrl_pressed = True
+                if event.type == KEYUP and event.key == K_LCTRL:
+                    is_ctrl_pressed = False
+                if is_ctrl_pressed and event.type == KEYDOWN and event.key == K_s:
+                    self.life.save(self.save_path)
                 if paused and event.type == MOUSEBUTTONUP and event.button == 1:
                     left, top = pygame.mouse.get_pos()
                     self.life.curr_generation[top // self.cell_size][left // self.cell_size] = \
