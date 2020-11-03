@@ -3,6 +3,7 @@ import typing as tp
 
 import pygame
 from pygame.locals import *
+
 # from pygame.constants import QUIT
 
 Cell = tp.Tuple[int, int]
