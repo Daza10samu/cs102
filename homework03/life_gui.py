@@ -1,9 +1,10 @@
 import pathlib
 
 import pygame
-from pygame.locals import *
+from pygame.constants import K_LCTRL, K_SPACE, KEYDOWN, KEYUP, MOUSEBUTTONUP, QUIT, K_r, K_s
 
-# from pygame.constants import K_LCTRL, K_SPACE, KEYDOWN, KEYUP, MOUSEBUTTONUP, QUIT, K_r, K_s
+# from pygame.locals import *
+
 
 from life import GameOfLife
 from ui import UI
