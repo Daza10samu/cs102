@@ -1,4 +1,5 @@
 import json
+import os
 import random
 import unittest
 
@@ -97,7 +98,9 @@ class TestGameOfLife(unittest.TestCase):
         game = life.GameOfLife((self.rows, self.cols))
         game.curr_generation = self.grid
 
-        with open("steps.txt") as f:
+        tests_dir = os.path.dirname(__file__)
+        steps_path = os.path.join(tests_dir, "steps.txt")
+        with open(steps_path) as f:
             steps = json.load(f)
 
         num_updates = 0
@@ -114,7 +117,7 @@ class TestGameOfLife(unittest.TestCase):
         game.step()
         self.assertEqual(game.prev_generation, self.grid)
 
-    def test_is_max_generations_exceed(self):
+    def test_is_max_generations_exceeded(self):
         max_generations = 4
         game = life.GameOfLife((self.rows, self.cols), max_generations=max_generations)
         game.curr_generation = self.grid
