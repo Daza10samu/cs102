@@ -2,7 +2,7 @@ import random
 import typing as tp
 
 import pygame
-from pygame.locals import *
+from pygame.constants import QUIT
 
 Cell = tp.Tuple[int, int]
 Cells = tp.List[int]
@@ -220,8 +220,3 @@ class GameOfLife:
                 elif self.grid[row_id][col_id] == 0 and alive_count == 3:
                     new_grid[row_id][col_id] = 1
         return new_grid
-
-
-if __name__ == "__main__":
-    game = GameOfLife(cell_size=40)
-    game.run()

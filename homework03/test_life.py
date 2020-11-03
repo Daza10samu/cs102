@@ -1,6 +1,6 @@
-import unittest
-import random
 import json
+import random
+import unittest
 
 from life import GameOfLife
 

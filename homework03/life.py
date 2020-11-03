@@ -9,10 +9,10 @@ Grid = tp.List[Cells]
 
 class GameOfLife:
     def __init__(
-            self,
-            size: tp.Tuple[int, int],
-            randomize: bool = True,
-            max_generations: tp.Optional[float] = float("inf"),
+        self,
+        size: tp.Tuple[int, int],
+        randomize: bool = True,
+        max_generations: float = float("inf"),
     ) -> None:
         # Размер клеточного поля
         self.rows, self.cols = size
@@ -82,30 +82,30 @@ class GameOfLife:
                 ]
             else:
                 return [
-                           self.curr_generation[self.rows - 1][j] for j in [cell[1] - 1, cell[1] + 1]
-                       ] + [
-                           self.curr_generation[self.rows - 2][j]
-                           for j in [cell[1] - 1, cell[1], cell[1] + 1]
-                       ]
+                    self.curr_generation[self.rows - 1][j] for j in [cell[1] - 1, cell[1] + 1]
+                ] + [
+                    self.curr_generation[self.rows - 2][j]
+                    for j in [cell[1] - 1, cell[1], cell[1] + 1]
+                ]
         else:
             if cell[1] == 0:
                 return [
-                           self.curr_generation[i][j]
-                           for i in (cell[0] - 1, cell[0] + 1)
-                           for j in range(0, 2)
-                       ] + [self.curr_generation[cell[0]][1]]
+                    self.curr_generation[i][j]
+                    for i in (cell[0] - 1, cell[0] + 1)
+                    for j in range(0, 2)
+                ] + [self.curr_generation[cell[0]][1]]
             elif cell[1] == self.cols - 1:
                 return [
-                           self.curr_generation[i][j]
-                           for i in (cell[0] - 1, cell[0] + 1)
-                           for j in range(self.cols - 2, self.cols)
-                       ] + [self.curr_generation[cell[0]][self.cols - 2]]
+                    self.curr_generation[i][j]
+                    for i in (cell[0] - 1, cell[0] + 1)
+                    for j in range(self.cols - 2, self.cols)
+                ] + [self.curr_generation[cell[0]][self.cols - 2]]
             else:
                 return [
-                           self.curr_generation[i][j]
-                           for i in (cell[0] - 1, cell[0] + 1)
-                           for j in range(cell[1] - 1, cell[1] + 2)
-                       ] + [self.curr_generation[cell[0]][j] for j in (cell[1] - 1, cell[1] + 1)]
+                    self.curr_generation[i][j]
+                    for i in (cell[0] - 1, cell[0] + 1)
+                    for j in range(cell[1] - 1, cell[1] + 2)
+                ] + [self.curr_generation[cell[0]][j] for j in (cell[1] - 1, cell[1] + 1)]
 
     def get_next_generation(self) -> Grid:
         # Copy from previous assignment
@@ -114,7 +114,7 @@ class GameOfLife:
             for col_id in range(self.cols):
                 alive_count = sum(1 for x in self.get_neighbours((row_id, col_id)) if x == 1)
                 if self.curr_generation[row_id][col_id] == 1 and not (
-                        alive_count == 3 or alive_count == 2
+                    alive_count == 3 or alive_count == 2
                 ):
                     new_grid[row_id][col_id] = 0
                 elif self.curr_generation[row_id][col_id] == 0 and alive_count == 3:
@@ -150,15 +150,20 @@ class GameOfLife:
         """
         Прочитать состояние клеток из указанного файла.
         """
+        grid: Grid
         grid = []
         with filename.open() as f:
             length = 0
             for line in f.readlines():
-                line_stripped = line.strip('\n')
+                line_stripped = line.strip("\n")
                 if length == 0:
                     length = len(line_stripped)
-                if len(line_stripped) != length or (set(line_stripped) != {'0', '1'} and set(line_stripped)!={'1'} and set(line_stripped)!={'0'}):
-                    raise ValueError('Формат файла не подходит')
+                if len(line_stripped) != length or (
+                    set(line_stripped) != {"0", "1"}
+                    and set(line_stripped) != {"1"}
+                    and set(line_stripped) != {"0"}
+                ):
+                    raise ValueError("Формат файла не подходит")
                 grid.append([])
                 for char in line_stripped:
                     grid[-1].append(int(char))
@@ -170,12 +175,8 @@ class GameOfLife:
         """
         Сохранить текущее состояние клеток в указанный файл.
         """
-        with filename.open('w') as f:
+        with filename.open("w") as f:
             for row in self.curr_generation:
                 for elem in row:
                     f.write(str(elem))
-                f.write('\n')
-
-
-if __name__ == '__main__':
-    GameOfLife.from_file(pathlib.Path('grid.txt'))
+                f.write("\n")

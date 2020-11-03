@@ -1,12 +1,16 @@
-import pygame
-from life import GameOfLife
-from pygame.locals import *
-from ui import UI
 import pathlib
+
+import pygame
+from pygame.constants import K_LCTRL, K_SPACE, KEYDOWN, KEYUP, MOUSEBUTTONUP, QUIT, K_r, K_s
+
+from life import GameOfLife
+from ui import UI
 
 
 class GUI(UI):
-    def __init__(self, life: GameOfLife, cell_size: int = 10, speed: int = 10, save_path: str = 'grid') -> None:
+    def __init__(
+        self, life: GameOfLife, cell_size: int = 10, speed: int = 10, save_path: str = "grid"
+    ) -> None:
         super().__init__(life)
         self.cell_size = cell_size
         self.width = self.life.cols * cell_size
@@ -77,8 +81,9 @@ class GUI(UI):
                     self.life.save(self.save_path)
                 if paused and event.type == MOUSEBUTTONUP and event.button == 1:
                     left, top = pygame.mouse.get_pos()
-                    self.life.curr_generation[top // self.cell_size][left // self.cell_size] = \
+                    self.life.curr_generation[top // self.cell_size][left // self.cell_size] = (
                         self.life.curr_generation[top // self.cell_size][left // self.cell_size] ^ 1
+                    )
                     self.draw_grid()
                     pygame.display.flip()
 
@@ -95,9 +100,3 @@ class GUI(UI):
                 pygame.display.flip()
                 clock.tick(self.speed)
         pygame.quit()
-
-
-if __name__ == "__main__":
-    life = GameOfLife(size=(24, 46), randomize=False)
-    game = GUI(life, cell_size=40)
-    game.run()
