@@ -141,69 +141,12 @@ class GameOfLife:
         out : Cells
             Список соседних клеток.
         """
-        if self.cell_width == 1 and self.cell_height == 1:
-            return []
-        elif self.cell_width == 1 and self.cell_height != 1:
-            if cell[1] == 0:
-                return [self.grid[0][1]]
-            elif cell[1] == self.cell_height - 1:
-                return [self.grid[0][cell[1] - 1]]
-            else:
-                return [self.grid[0][cell[1] - 1], self.grid[0][cell[1] + 1]]
-        elif self.cell_width != 1 and self.cell_height == 1:
-            if cell[0] == 0:
-                return [self.grid[1][0]]
-            elif cell[0] == self.cell_width - 1:
-                return [self.grid[cell[0] - 1][0]]
-            else:
-                return [self.grid[cell[0] - 1][0], self.grid[cell[0] + 1][0]]
-        elif cell[0] == 0:
-            if cell[1] == 0:
-                return [self.grid[1][0], self.grid[0][1], self.grid[1][1]]
-            elif cell[1] == self.cell_width - 1:
-                return [
-                    self.grid[1][self.cell_width - 1],
-                    self.grid[0][self.cell_width - 2],
-                    self.grid[1][self.cell_width - 2],
-                ]
-            else:
-                return [self.grid[0][j] for j in [cell[1] - 1, cell[1] + 1]] + [
-                    self.grid[1][j] for j in [cell[1] - 1, cell[1], cell[1] + 1]
-                ]
-        elif cell[0] == self.cell_height - 1:
-            if cell[1] == 0:
-                return [
-                    self.grid[self.cell_height - 2][0],
-                    self.grid[self.cell_height - 1][1],
-                    self.grid[self.cell_height - 2][1],
-                ]
-            elif cell[1] == self.cell_width - 1:
-                return [
-                    self.grid[self.cell_height - 2][self.cell_width - 1],
-                    self.grid[self.cell_height - 1][self.cell_width - 2],
-                    self.grid[self.cell_height - 2][self.cell_width - 2],
-                ]
-            else:
-                return [self.grid[self.cell_height - 1][j] for j in [cell[1] - 1, cell[1] + 1]] + [
-                    self.grid[self.cell_height - 2][j] for j in [cell[1] - 1, cell[1], cell[1] + 1]
-                ]
-        else:
-            if cell[1] == 0:
-                return [
-                    self.grid[i][j] for i in (cell[0] - 1, cell[0] + 1) for j in range(0, 2)
-                ] + [self.grid[cell[0]][1]]
-            elif cell[1] == self.cell_width - 1:
-                return [
-                    self.grid[i][j]
-                    for i in (cell[0] - 1, cell[0] + 1)
-                    for j in range(self.cell_width - 2, self.cell_width)
-                ] + [self.grid[cell[0]][self.cell_width - 2]]
-            else:
-                return [
-                    self.grid[i][j]
-                    for i in (cell[0] - 1, cell[0] + 1)
-                    for j in range(cell[1] - 1, cell[1] + 2)
-                ] + [self.grid[cell[0]][j] for j in (cell[1] - 1, cell[1] + 1)]
+        neighbours = []
+        for row_id in range(max(cell[0] - 1, 0), min(cell[0] + 2, self.cell_height)):
+            for col_id in range(max(cell[1] - 1, 0), min(cell[1] + 2, self.cell_width)):
+                if row_id != cell[0] or col_id != cell[1]:
+                    neighbours.append(self.grid[row_id][col_id])
+        return neighbours
 
     def get_next_generation(self) -> Grid:
         """
@@ -214,7 +157,7 @@ class GameOfLife:
         out : Grid
             Новое поколение клеток.
         """
-        new_grid = [x.copy() for x in self.grid]
+        new_grid = self.create_grid(randomize=False)
         for row_id in range(self.cell_height):
             for col_id in range(self.cell_width):
                 alive_count = sum(1 for x in self.get_neighbours((row_id, col_id)) if x == 1)
@@ -222,4 +165,6 @@ class GameOfLife:
                     new_grid[row_id][col_id] = 0
                 elif self.grid[row_id][col_id] == 0 and alive_count == 3:
                     new_grid[row_id][col_id] = 1
+                else:
+                    new_grid[row_id][col_id] = self.grid[row_id][col_id]
         return new_grid

@@ -34,82 +34,16 @@ class GameOfLife:
 
     def get_neighbours(self, cell: Cell) -> Cells:
         # Copy from previous assignment
-        if self.cols == 1 and self.rows == 1:
-            return []
-        elif self.cols == 1 and self.rows != 1:
-            if cell[1] == 0:
-                return [self.curr_generation[0][1]]
-            elif cell[1] == self.rows - 1:
-                return [self.curr_generation[0][cell[1] - 1]]
-            else:
-                return [self.curr_generation[0][cell[1] - 1], self.curr_generation[0][cell[1] + 1]]
-        elif self.cols != 1 and self.rows == 1:
-            if cell[0] == 0:
-                return [self.curr_generation[1][0]]
-            elif cell[0] == self.cols - 1:
-                return [self.curr_generation[cell[0] - 1][0]]
-            else:
-                return [self.curr_generation[cell[0] - 1][0], self.curr_generation[cell[0] + 1][0]]
-        elif cell[0] == 0:
-            if cell[1] == 0:
-                return [
-                    self.curr_generation[1][0],
-                    self.curr_generation[0][1],
-                    self.curr_generation[1][1],
-                ]
-            elif cell[1] == self.cols - 1:
-                return [
-                    self.curr_generation[1][self.cols - 1],
-                    self.curr_generation[0][self.cols - 2],
-                    self.curr_generation[1][self.cols - 2],
-                ]
-            else:
-                return [self.curr_generation[0][j] for j in [cell[1] - 1, cell[1] + 1]] + [
-                    self.curr_generation[1][j] for j in [cell[1] - 1, cell[1], cell[1] + 1]
-                ]
-        elif cell[0] == self.rows - 1:
-            if cell[1] == 0:
-                return [
-                    self.curr_generation[self.rows - 2][0],
-                    self.curr_generation[self.rows - 1][1],
-                    self.curr_generation[self.rows - 2][1],
-                ]
-            elif cell[1] == self.cols - 1:
-                return [
-                    self.curr_generation[self.rows - 2][self.cols - 1],
-                    self.curr_generation[self.rows - 1][self.cols - 2],
-                    self.curr_generation[self.rows - 2][self.cols - 2],
-                ]
-            else:
-                return [
-                    self.curr_generation[self.rows - 1][j] for j in [cell[1] - 1, cell[1] + 1]
-                ] + [
-                    self.curr_generation[self.rows - 2][j]
-                    for j in [cell[1] - 1, cell[1], cell[1] + 1]
-                ]
-        else:
-            if cell[1] == 0:
-                return [
-                    self.curr_generation[i][j]
-                    for i in (cell[0] - 1, cell[0] + 1)
-                    for j in range(0, 2)
-                ] + [self.curr_generation[cell[0]][1]]
-            elif cell[1] == self.cols - 1:
-                return [
-                    self.curr_generation[i][j]
-                    for i in (cell[0] - 1, cell[0] + 1)
-                    for j in range(self.cols - 2, self.cols)
-                ] + [self.curr_generation[cell[0]][self.cols - 2]]
-            else:
-                return [
-                    self.curr_generation[i][j]
-                    for i in (cell[0] - 1, cell[0] + 1)
-                    for j in range(cell[1] - 1, cell[1] + 2)
-                ] + [self.curr_generation[cell[0]][j] for j in (cell[1] - 1, cell[1] + 1)]
+        neighbours = []
+        for row_id in range(max(cell[0] - 1, 0), min(cell[0] + 2, self.rows)):
+            for col_id in range(max(cell[1] - 1, 0), min(cell[1] + 2, self.cols)):
+                if row_id != cell[0] or col_id != cell[1]:
+                    neighbours.append(self.curr_generation[row_id][col_id])
+        return neighbours
 
     def get_next_generation(self) -> Grid:
         # Copy from previous assignment
-        new_grid = [x.copy() for x in self.curr_generation]
+        new_grid = self.create_grid(randomize=False)
         for row_id in range(self.rows):
             for col_id in range(self.cols):
                 alive_count = sum(1 for x in self.get_neighbours((row_id, col_id)) if x == 1)
@@ -119,6 +53,8 @@ class GameOfLife:
                     new_grid[row_id][col_id] = 0
                 elif self.curr_generation[row_id][col_id] == 0 and alive_count == 3:
                     new_grid[row_id][col_id] = 1
+                else:
+                    new_grid[row_id][col_id] = self.curr_generation[row_id][col_id]
         return new_grid
 
     def step(self) -> None:
@@ -158,11 +94,7 @@ class GameOfLife:
                 line_stripped = line.strip("\n")
                 if length == 0:
                     length = len(line_stripped)
-                if len(line_stripped) != length or (
-                    set(line_stripped) != {"0", "1"}
-                    and set(line_stripped) != {"1"}
-                    and set(line_stripped) != {"0"}
-                ):
+                if len(line_stripped) != length or len(set(line_stripped) - {"0", "1"}) != 0:
                     raise ValueError("Формат файла не подходит")
                 grid.append([])
                 for char in line_stripped:
