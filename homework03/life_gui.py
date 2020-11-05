@@ -73,6 +73,7 @@ class GUI(UI):
                     running = False
                 if event.type == KEYDOWN and event.key == K_r:
                     self.life.curr_generation = self.life.create_grid(randomize=True)
+                    self.life.generations = 1
                     paused = False
                 if event.type == KEYDOWN and event.key == K_SPACE:
                     paused = bool(paused ^ 1)
