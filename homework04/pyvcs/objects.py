@@ -11,8 +11,25 @@ from pyvcs.repo import repo_find
 
 
 def hash_object(data: bytes, fmt: str, write: bool = False) -> str:
-    # PUT YOUR CODE HERE
-    ...
+    formatted_data = (fmt + f" {len(data)}\0").encode() + data
+    hash_str = hashlib.sha1(formatted_data).hexdigest()
+    if write:
+        dir_path = pathlib.Path('./.pyvcs/')
+        try:
+            dir_path /= 'objects'
+            dir_path.mkdir()
+        except FileExistsError:
+            pass
+        try:
+
+            dir_path /= hash_str[:2]
+            dir_path.mkdir()
+        except FileExistsError:
+            pass
+        with (dir_path/hash_str[2:]).open('wb') as f:
+            f.write(zlib.compress(formatted_data))
+    return hash_str
+
 
 
 def resolve_object(obj_name: str, gitdir: pathlib.Path) -> tp.List[str]:

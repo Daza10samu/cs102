@@ -9,5 +9,6 @@ def repo_find(workdir: tp.Union[str, pathlib.Path] = ".") -> pathlib.Path:
 
 
 def repo_create(workdir: tp.Union[str, pathlib.Path]) -> pathlib.Path:
-    # PUT YOUR CODE HERE
-    ...
+    path = pathlib.Path(workdir) / '.pyvcs'
+    path.mkdir()
+    return path
