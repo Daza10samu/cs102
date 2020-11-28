@@ -5,7 +5,7 @@ import typing as tp
 
 def repo_find(workdir: tp.Union[str, pathlib.Path] = ".") -> pathlib.Path:
     git_dir = ".pyvcs"
-    if os.environ["GIT_DIR"]:
+    if 'GIT_DIR' in os.environ and os.environ["GIT_DIR"]:
         git_dir = os.environ["GIT_DIR"]
     path = pathlib.Path(workdir)
     while path.absolute() != pathlib.Path('/'):

@@ -1,6 +1,7 @@
 import hashlib
 import os
 import pathlib
+import datetime
 import stat
 import time
 import typing as tp
@@ -55,5 +56,12 @@ def commit_tree(
         parent: tp.Optional[str] = None,
         author: tp.Optional[str] = None,
 ) -> str:
-    # PUT YOUR CODE HERE
-    ...
+    now_bad_format = time.localtime()
+    now = int(datetime.datetime(year=now_bad_format.tm_year, day=now_bad_format.tm_mday, month=now_bad_format.tm_mon,
+                                hour=now_bad_format.tm_hour, minute=now_bad_format.tm_min,
+                                second=now_bad_format.tm_sec).timestamp())
+    tz = time.timezone
+    tz_str = ('-' if tz > 0 else '+') + f'{abs(tz) // 3600:02}{abs(tz) // 60 % 60:02}'
+    data = (f'tree {tree}\nauthor {author} {now} {tz_str}\ncommitter {author} {now} {tz_str}' +
+            f'\n{"" if parent is None else parent}\n{message}\n').encode()
+    return hash_object(data, 'commit', write=True)
