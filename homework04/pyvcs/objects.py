@@ -14,14 +14,8 @@ def hash_object(data: bytes, fmt: str, write: bool = False) -> str:
     formatted_data = (fmt + f" {len(data)}\0").encode() + data
     hash_str = hashlib.sha1(formatted_data).hexdigest()
     if write:
-        dir_path = pathlib.Path('./.pyvcs/')
+        dir_path = pathlib.Path('./.pyvcs/') / 'objects'
         try:
-            dir_path /= 'objects'
-            dir_path.mkdir()
-        except FileExistsError:
-            pass
-        try:
-
             dir_path /= hash_str[:2]
             dir_path.mkdir()
         except FileExistsError:
