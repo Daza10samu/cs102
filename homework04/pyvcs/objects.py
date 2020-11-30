@@ -29,7 +29,9 @@ def resolve_object(obj_name: str, gitdir: pathlib.Path) -> tp.List[str]:
     if len(obj_name) < 4:
         raise ValueError(f"Not a valid object name {obj_name}")
     object_dir = gitdir / 'objects'
-    result = list(map(lambda x: ''.join(str(x).split('/')[-2:]), (object_dir / obj_name[:2]).glob(f'{obj_name[2:]}*')))
+    result = list(map(lambda x: ''.join(str(x).split('/')[-2:]),
+                      filter(lambda x: str(x).split('/')[-1].startswith(obj_name[2:]),
+                             (object_dir / obj_name[:2]).glob(f'{obj_name[2:]}*'))))
     if len(result) == 0:
         raise ValueError(f"Not a valid object name {obj_name}")
     return result
@@ -56,12 +58,13 @@ def read_object(sha: str, gitdir: pathlib.Path) -> tp.Tuple[str, bytes]:
 
 
 def read_tree(data: bytes) -> tp.List[tp.Tuple[int, str, str]]:
-    data_list = (b'\x00' + b'\x01' * 20 + data).split(b'\x00')
     result = []
-    for i in range(1, len(data_list) - 1):
-        *main_data, = data_list[i][20:].decode().split(' ')
-        sha = data_list[i + 1][:20]
-        result.append((int(main_data[0]), main_data[1], sha.hex()))
+    while data:
+        before_sha_ind = data.index(b'\00')
+        mode, name = data[:before_sha_ind].decode().split(' ')
+        sha = data[before_sha_ind+1:before_sha_ind+21]
+        result.append((int(mode), name, sha.hex()))
+        data = data[before_sha_ind+21:]
     return result
 
 
@@ -85,5 +88,11 @@ def find_tree_files(tree_sha: str, gitdir: pathlib.Path) -> tp.List[tp.Tuple[str
 
 
 def commit_parse(raw: bytes, start: int = 0, dct=None):
-    # PUT YOUR CODE HERE
-    ...
+    data = {'message': []}
+    for line in raw.decode().split('\n'):
+        if line.startswith(('tree', 'parent', 'author', 'committer')):
+            name, val = line.split(' ', maxsplit=1)
+            data[name] = val
+        else:
+            data['message'].append(line)
+    return data

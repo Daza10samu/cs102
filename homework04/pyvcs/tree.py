@@ -62,6 +62,12 @@ def commit_tree(
                                 second=now_bad_format.tm_sec).timestamp())
     tz = time.timezone
     tz_str = ('-' if tz > 0 else '+') + f'{abs(tz) // 3600:02}{abs(tz) // 60 % 60:02}'
-    data = (f'tree {tree}\nauthor {author} {now} {tz_str}\ncommitter {author} {now} {tz_str}' +
-            f'\n{"" if parent is None else parent}\n{message}\n').encode()
+    content = []
+    content.append(f'tree {tree}')
+    if parent is not None:
+        content.append(f"parent {parent}")
+    content.append(f'author {author} {now} {tz_str}')
+    content.append(f'committer {author} {now} {tz_str}')
+    content.append(f'\n{message}\n')
+    data = ('\n'.join(content).encode())
     return hash_object(data, 'commit', write=True)

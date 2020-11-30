@@ -106,7 +106,7 @@ def update_index(
         gitdir: pathlib.Path, paths: tp.List[pathlib.Path], write: bool = True
 ) -> None:
     entries = read_index(gitdir)
-    names = map(lambda x: x.name, entries)
+    *names, = map(lambda x: x.name, entries)
     for path in paths:
         with path.open("rb") as f:
             data = f.read()
@@ -115,17 +115,7 @@ def update_index(
             del_ind = names.index(str(path))
             del entries[del_ind]
             del names[del_ind]
-        sha1_hash = hash_object(data, "blob")
-        try:
-            (gitdir / 'objects').mkdir()
-        except FileExistsError:
-            pass
-        try:
-            (gitdir / 'objects' / sha1_hash[:2]).mkdir()
-        except FileExistsError:
-            pass
-        with (gitdir / 'objects' / sha1_hash[:2] / sha1_hash[2:]).open('wb') as f:
-            f.write(data)
+        sha1_hash = hash_object(data, "blob", write=True)
         entries.append(
             GitIndexEntry(
                 ctime_s=int(stat.st_ctime),
