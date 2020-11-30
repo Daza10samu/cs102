@@ -26,20 +26,20 @@ class GitIndexEntry(tp.NamedTuple):
 
     def pack(self) -> bytes:
         return (
-                self.ctime_s.to_bytes(4, "big")
-                + self.ctime_n.to_bytes(4, "big")
-                + self.mtime_s.to_bytes(4, "big")
-                + self.mtime_n.to_bytes(4, "big")
-                + self.dev.to_bytes(4, "big")
-                + self.ino.to_bytes(4, "big")
-                + self.mode.to_bytes(4, "big")
-                + self.uid.to_bytes(4, "big")
-                + self.gid.to_bytes(4, "big")
-                + self.size.to_bytes(4, "big")
-                + self.sha1
-                + self.flags.to_bytes(2, "big")
-                + self.name.encode()
-                + b"\x00" * (8 - (62 + len(self.name.encode())) % 8)
+            self.ctime_s.to_bytes(4, "big")
+            + self.ctime_n.to_bytes(4, "big")
+            + self.mtime_s.to_bytes(4, "big")
+            + self.mtime_n.to_bytes(4, "big")
+            + self.dev.to_bytes(4, "big")
+            + self.ino.to_bytes(4, "big")
+            + self.mode.to_bytes(4, "big")
+            + self.uid.to_bytes(4, "big")
+            + self.gid.to_bytes(4, "big")
+            + self.size.to_bytes(4, "big")
+            + self.sha1
+            + self.flags.to_bytes(2, "big")
+            + self.name.encode()
+            + b"\x00" * (8 - (62 + len(self.name.encode())) % 8)
         )
 
     @staticmethod
@@ -102,11 +102,9 @@ def ls_files(gitdir: pathlib.Path, details: bool = False) -> None:
         )
 
 
-def update_index(
-        gitdir: pathlib.Path, paths: tp.List[pathlib.Path], write: bool = True
-) -> None:
+def update_index(gitdir: pathlib.Path, paths: tp.List[pathlib.Path], write: bool = True) -> None:
     entries = read_index(gitdir)
-    *names, = map(lambda x: x.name, entries)
+    (*names,) = map(lambda x: x.name, entries)
     for path in paths:
         with path.open("rb") as f:
             data = f.read()
@@ -119,9 +117,9 @@ def update_index(
         entries.append(
             GitIndexEntry(
                 ctime_s=int(stat.st_ctime),
-                ctime_n=int(str(stat.st_ctime_ns)[len(str(int(stat.st_ctime))):]),
+                ctime_n=int(str(stat.st_ctime_ns)[len(str(int(stat.st_ctime))) :]),
                 mtime_s=int(stat.st_mtime),
-                mtime_n=int(str(stat.st_mtime_ns)[len(str(int(stat.st_mtime))):]),
+                mtime_n=int(str(stat.st_mtime_ns)[len(str(int(stat.st_mtime))) :]),
                 dev=stat.st_dev,
                 ino=stat.st_ino,
                 mode=stat.st_mode,

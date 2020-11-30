@@ -3,15 +3,22 @@ import pathlib
 import typing as tp
 
 from pyvcs.index import read_index, update_index
-from pyvcs.objects import commit_parse, find_object, find_tree_files, read_object, resolve_object, read_tree
+from pyvcs.objects import (
+    commit_parse,
+    find_object,
+    find_tree_files,
+    read_object,
+    resolve_object,
+    read_tree,
+)
 from pyvcs.refs import get_ref, is_detached, resolve_head, update_ref
 from pyvcs.tree import commit_tree, write_tree
 
 
 def dir_remover(dir: pathlib.Path):
-    for dir_path in filter(lambda x: x.is_dir(), dir.glob('*')):
+    for dir_path in filter(lambda x: x.is_dir(), dir.glob("*")):
         dir_remover(dir_path)
-    if list(dir.glob('*')) == []:
+    if list(dir.glob("*")) == []:
         os.rmdir(str(dir))
 
 
@@ -37,15 +44,15 @@ def checkout(gitdir: pathlib.Path, obj_name: str) -> None:
     commit_que = [commit_parse(read_object(obj_name, gitdir)[1])]
     while len(commit_que) != 0:
         comm = commit_que.pop()
-        if 'parent' in comm:
-            commit_que.append(commit_parse((read_object(comm['parent'], gitdir)[1])))
+        if "parent" in comm:
+            commit_que.append(commit_parse((read_object(comm["parent"], gitdir)[1])))
         tree_que: tp.List[tp.Tuple[pathlib.Path, tp.List[tp.Tuple[int, str, str]]]]
-        tree_que = [(gitdir.parent, read_tree(read_object(comm['tree'], gitdir)[1]))]
+        tree_que = [(gitdir.parent, read_tree(read_object(comm["tree"], gitdir)[1]))]
         while len(tree_que) != 0:
             tree_path, tree_content = tree_que.pop()
             for file_data in tree_content:
                 fmt, data = read_object(file_data[2], gitdir)
-                if fmt == 'tree':
+                if fmt == "tree":
                     tree_que.append((tree_path / file_data[1], read_tree(data)))
                     try:
                         (tree_path / file_data[1]).mkdir()
@@ -53,8 +60,8 @@ def checkout(gitdir: pathlib.Path, obj_name: str) -> None:
                         pass
                 else:
                     if not (tree_path / file_data[1]).exists():
-                        with (tree_path / file_data[1]).open('wb') as f:
+                        with (tree_path / file_data[1]).open("wb") as f:
                             f.write(data)
                         (tree_path / file_data[1]).chmod(file_data[0])
-    for dir in filter(lambda x: x != gitdir and x.is_dir(), gitdir.parent.glob('*')):
+    for dir in filter(lambda x: x != gitdir and x.is_dir(), gitdir.parent.glob("*")):
         dir_remover(dir)
