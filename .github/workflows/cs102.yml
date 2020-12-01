@@ -20,7 +20,7 @@ jobs:
         black -l 100 --check --diff --color --exclude "test*" ${{ github.head_ref }}
     - name: Run mypy
       run: |
-        mypy ${{ github.head_ref }}
+        mypy --ignore-missing-imports ${{ github.head_ref }}
     - name: Run pylint
       run: |
         pylint --exit-zero ${{ github.head_ref }}
