@@ -83,11 +83,18 @@ def cat_file(obj_name: str, pretty: bool = True) -> None:
         else:
             print(data[0], out)
     elif data[0] == "tree":
-        out = read_tree(data[1])
+        out1 = read_tree(data[1])
         if pretty:
             print(
-                *[f'{x[0]:06} {"tree" if x[0] == 40000 else "blob"} {x[2]}\t{x[1]}' for x in out],
+                *[f'{x[0]:06} {"tree" if x[0] == 40000 else "blob"} {x[2]}\t{x[1]}' for x in out1],
                 sep="\n",
+            )
+        else:
+            print(
+                data[0],
+                "\n".join(
+                    f'{x[0]:06} {"tree" if x[0] == 40000 else "blob"} {x[2]}\t{x[1]}' for x in out1
+                ),
             )
 
 
@@ -97,6 +104,7 @@ def find_tree_files(tree_sha: str, gitdir: pathlib.Path) -> tp.List[tp.Tuple[str
 
 
 def commit_parse(raw: bytes, start: int = 0, dct=None):
+    data: tp.Dict[str, tp.Any]
     data = {"message": []}
     for line in raw.decode().split("\n"):
         if line.startswith(("tree", "parent", "author", "committer")):

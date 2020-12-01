@@ -14,6 +14,7 @@ from pyvcs.refs import get_ref, is_detached, resolve_head, update_ref
 def write_tree(gitdir: pathlib.Path, index: tp.List[GitIndexEntry], dirname: str = "") -> str:
     path = gitdir.parent / dirname
     files = list(path.glob("*"))
+    unhandled_dirs: tp.Dict[str, tp.List[GitIndexEntry]]
     unhandled_dirs = dict()
     enties_to_format = []
     for entry in index:
