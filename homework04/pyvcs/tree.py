@@ -58,11 +58,11 @@ def write_tree(gitdir: pathlib.Path, index: tp.List[GitIndexEntry], dirname: str
 
 
 def commit_tree(
-        gitdir: pathlib.Path,
-        tree: str,
-        message: str,
-        parent: tp.Optional[str] = None,
-        author: tp.Optional[str] = None,
+    gitdir: pathlib.Path,
+    tree: str,
+    message: str,
+    parent: tp.Optional[str] = None,
+    author: tp.Optional[str] = None,
 ) -> str:
     now_bad_format = time.localtime()
     now = int(

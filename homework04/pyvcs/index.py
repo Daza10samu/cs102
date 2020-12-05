@@ -26,20 +26,20 @@ class GitIndexEntry(tp.NamedTuple):
 
     def pack(self) -> bytes:
         return (
-                self.ctime_s.to_bytes(4, "big")
-                + self.ctime_n.to_bytes(4, "big")
-                + self.mtime_s.to_bytes(4, "big")
-                + self.mtime_n.to_bytes(4, "big")
-                + self.dev.to_bytes(4, "big")
-                + self.ino.to_bytes(4, "big")
-                + self.mode.to_bytes(4, "big")
-                + self.uid.to_bytes(4, "big")
-                + self.gid.to_bytes(4, "big")
-                + self.size.to_bytes(4, "big")
-                + self.sha1
-                + self.flags.to_bytes(2, "big")
-                + self.name.encode()
-                + b"\x00" * (8 - (62 + len(self.name.encode())) % 8)
+            self.ctime_s.to_bytes(4, "big")
+            + self.ctime_n.to_bytes(4, "big")
+            + self.mtime_s.to_bytes(4, "big")
+            + self.mtime_n.to_bytes(4, "big")
+            + self.dev.to_bytes(4, "big")
+            + self.ino.to_bytes(4, "big")
+            + self.mode.to_bytes(4, "big")
+            + self.uid.to_bytes(4, "big")
+            + self.gid.to_bytes(4, "big")
+            + self.size.to_bytes(4, "big")
+            + self.sha1
+            + self.flags.to_bytes(2, "big")
+            + self.name.encode()
+            + b"\x00" * (8 - (62 + len(self.name.encode())) % 8)
         )
 
     @staticmethod
