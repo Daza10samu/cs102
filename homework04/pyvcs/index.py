@@ -31,7 +31,7 @@ class GitIndexEntry(tp.NamedTuple):
             + self.mtime_s.to_bytes(4, "big")
             + self.mtime_n.to_bytes(4, "big")
             + self.dev.to_bytes(4, "big")
-            + self.ino.to_bytes(4, "big")
+            + self.ino.to_bytes(8, "big")[4:]
             + self.mode.to_bytes(4, "big")
             + self.uid.to_bytes(4, "big")
             + self.gid.to_bytes(4, "big")
