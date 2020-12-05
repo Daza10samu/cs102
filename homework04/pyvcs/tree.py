@@ -27,14 +27,14 @@ def write_tree(gitdir: pathlib.Path, index: tp.List[GitIndexEntry], dirname: str
                 unhandled_dirs[dir_name] = []
             unhandled_dirs[dir_name].append(entry)
     for dir_name in unhandled_dirs:
-        stat = (pathlib.Path(dirname) / dir_name).stat()
+        stat = (gitdir.parent / dirname / dir_name).stat()
         sha = write_tree(gitdir, unhandled_dirs[dir_name], dir_name)
         enties_to_format.append(
             GitIndexEntry(
                 ctime_s=int(stat.st_ctime),
-                ctime_n=int(str(stat.st_ctime_ns)[len(str(int(stat.st_ctime))) :]),
+                ctime_n=0,
                 mtime_s=int(stat.st_mtime),
-                mtime_n=int(str(stat.st_mtime_ns)[len(str(int(stat.st_mtime))) :]),
+                mtime_n=0,
                 dev=stat.st_dev,
                 ino=stat.st_ino,
                 mode=0o40000,  # mode for git tree
@@ -42,8 +42,8 @@ def write_tree(gitdir: pathlib.Path, index: tp.List[GitIndexEntry], dirname: str
                 gid=stat.st_gid,
                 size=stat.st_size,
                 sha1=bytes.fromhex(sha),
-                flags=7,
-                name=str(pathlib.Path(dirname) / dir_name),
+                flags=len(dir_name),
+                name=str(gitdir.parent / dirname / dir_name),
             )
         )
     preformatted_data = b"".join(
@@ -58,11 +58,11 @@ def write_tree(gitdir: pathlib.Path, index: tp.List[GitIndexEntry], dirname: str
 
 
 def commit_tree(
-    gitdir: pathlib.Path,
-    tree: str,
-    message: str,
-    parent: tp.Optional[str] = None,
-    author: tp.Optional[str] = None,
+        gitdir: pathlib.Path,
+        tree: str,
+        message: str,
+        parent: tp.Optional[str] = None,
+        author: tp.Optional[str] = None,
 ) -> str:
     now_bad_format = time.localtime()
     now = int(
