@@ -88,7 +88,7 @@ def get_mutual(
                 json_data.extend(curr_resp_json["response"])
             else:
                 raise APIError
-            if i % 100 % 3 == 2:
+            if i // 100 % 3 == 2:
                 time.sleep(1)
         result = []
         for friend_list in json_data:

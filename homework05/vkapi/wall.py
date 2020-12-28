@@ -103,6 +103,6 @@ def get_wall_execute(
             else:
                 res.extend(x)
         json_data.extend(res)
-        if i % 100 % 3 == 1:
+        if (i // max_count) % 3 == 1:
             time.sleep(1)
     return json_normalize(json_data)
