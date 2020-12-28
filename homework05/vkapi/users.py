@@ -7,6 +7,6 @@ def get_uid() -> int:
 
     Returns: [int] id of user
     """
-    return \
-        session.get(
-            f'users.get?access_token={config.VK_CONFIG["access_token"]}&v={config.VK_CONFIG["version"]}').json()['response'][0]['id']
+    return session.get(
+        f'users.get?access_token={config.VK_CONFIG["access_token"]}&v={config.VK_CONFIG["version"]}'
+    ).json()["response"][0]["id"]

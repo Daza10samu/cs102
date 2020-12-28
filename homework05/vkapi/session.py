@@ -22,11 +22,11 @@ class Session:
     """
 
     def __init__(
-            self,
-            base_url: str,
-            timeout: float = 5.0,
-            max_retries: int = 3,
-            backoff_factor: float = 0.3,
+        self,
+        base_url: str,
+        timeout: float = 5.0,
+        max_retries: int = 3,
+        backoff_factor: float = 0.3,
     ) -> None:
         self.__session = RequestsSession()
         self.__base_url = base_url
@@ -37,21 +37,24 @@ class Session:
     def get(self, url: str, *args: tp.Any, **kwargs: tp.Any) -> requests.Response:
         response: tp.Optional[requests.Response]
         try:
-            if 'timeout' not in kwargs:
-                response = self.__session.get(self.__base_url + '/' + url, *args, timeout=self.__timeout, **kwargs)
+            if "timeout" not in kwargs:
+                response = self.__session.get(
+                    self.__base_url + "/" + url, *args, timeout=self.__timeout, **kwargs
+                )
             else:
-                response = self.__session.get(self.__base_url + '/' + url, *args, **kwargs)
+                response = self.__session.get(self.__base_url + "/" + url, *args, **kwargs)
         except (requests.exceptions.Timeout, requests.exceptions.ReadTimeout):
             response = None
         if response is None or not response.ok:
             curr_delay = self.__backoff_factor
             for i in range(self.__max_retries):
                 try:
-                    if 'timeout' not in kwargs:
-                        response = self.__session.get(self.__base_url + '/' + url, *args, timeout=self.__timeout,
-                                                      **kwargs)
+                    if "timeout" not in kwargs:
+                        response = self.__session.get(
+                            self.__base_url + "/" + url, *args, timeout=self.__timeout, **kwargs
+                        )
                     else:
-                        response = self.__session.get(self.__base_url + '/' + url, *args, **kwargs)
+                        response = self.__session.get(self.__base_url + "/" + url, *args, **kwargs)
                 except (requests.exceptions.Timeout, requests.exceptions.ReadTimeout):
                     pass
                 if response is not None and response.ok:
@@ -69,10 +72,12 @@ class Session:
     def post(self, url: str, *args: tp.Any, **kwargs: tp.Any) -> requests.Response:
         response: tp.Optional[requests.Response]
         try:
-            if 'timeout' not in kwargs:
-                response = self.__session.post(self.__base_url + '/' + url, *args, timeout=self.__timeout, **kwargs)
+            if "timeout" not in kwargs:
+                response = self.__session.post(
+                    self.__base_url + "/" + url, *args, timeout=self.__timeout, **kwargs
+                )
             else:
-                response = self.__session.post(self.__base_url + '/' + url, *args, **kwargs)
+                response = self.__session.post(self.__base_url + "/" + url, *args, **kwargs)
         except (requests.exceptions.Timeout, requests.exceptions.ReadTimeout):
             response = None
         if response is None or not response.ok:
@@ -80,11 +85,12 @@ class Session:
             sleep(curr_delay)
             for i in range(self.__max_retries):
                 try:
-                    if 'timeout' not in kwargs:
-                        response = self.__session.post(self.__base_url + '/' + url, *args, timeout=self.__timeout,
-                                                       **kwargs)
+                    if "timeout" not in kwargs:
+                        response = self.__session.post(
+                            self.__base_url + "/" + url, *args, timeout=self.__timeout, **kwargs
+                        )
                     else:
-                        response = self.__session.post(self.__base_url + '/' + url, *args, **kwargs)
+                        response = self.__session.post(self.__base_url + "/" + url, *args, **kwargs)
                 except (requests.exceptions.Timeout, requests.exceptions.ReadTimeout):
                     pass
                 if response is not None and response.ok:

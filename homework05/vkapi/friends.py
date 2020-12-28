@@ -16,7 +16,10 @@ class FriendsResponse:
 
 
 def get_friends(
-        user_id: tp.Optional[int] = None, count: int = 5000, offset: int = 0, fields: tp.Optional[tp.List[str]] = None
+    user_id: tp.Optional[int] = None,
+    count: int = 5000,
+    offset: int = 0,
+    fields: tp.Optional[tp.List[str]] = None,
 ) -> FriendsResponse:
     """
     Получить список идентификаторов друзей пользователя или расширенную информацию
@@ -29,13 +32,16 @@ def get_friends(
     :return: Список идентификаторов друзей пользователя или список пользователей.
     """
     response = session.get(
-        f'friends.get?user_id={user_id if user_id is not None else ""}&count={count}&offset={offset}' +
-        f'&fields={",".join(fields) if fields is not None else ""}' +
-        f'&access_token={config.VK_CONFIG["access_token"]}&v={config.VK_CONFIG["version"]}')
+        f'friends.get?user_id={user_id if user_id is not None else ""}&count={count}&offset={offset}'
+        + f'&fields={",".join(fields) if fields is not None else ""}'
+        + f'&access_token={config.VK_CONFIG["access_token"]}&v={config.VK_CONFIG["version"]}'
+    )
     json_data = response.json()
-    if 'error' in json_data:
+    if "error" in json_data:
         raise APIError
-    return FriendsResponse(count=json_data['response']['count'], items=json_data['response']['items'])
+    return FriendsResponse(
+        count=json_data["response"]["count"], items=json_data["response"]["items"]
+    )
 
 
 class MutualFriends(tp.TypedDict):
@@ -45,13 +51,13 @@ class MutualFriends(tp.TypedDict):
 
 
 def get_mutual(
-        source_uid: tp.Optional[int] = None,
-        target_uid: tp.Optional[int] = None,
-        target_uids: tp.Optional[tp.List[int]] = None,
-        order: str = "",
-        count: tp.Optional[int] = None,
-        offset: int = 0,
-        progress=None,
+    source_uid: tp.Optional[int] = None,
+    target_uid: tp.Optional[int] = None,
+    target_uids: tp.Optional[tp.List[int]] = None,
+    order: str = "",
+    count: tp.Optional[int] = None,
+    offset: int = 0,
+    progress=None,
 ) -> tp.Union[tp.List[int], tp.List[MutualFriends]]:
     """
     Получить список идентификаторов общих друзей между парой пользователей.
@@ -73,28 +79,35 @@ def get_mutual(
             progress = lambda x, *a, **kw: x
         for i in progress(range(0, len(target_uids), 100)):
             response = session.get(
-                f'friends.getMutual?source_uid={source_uid if source_uid is not None else ""}' +
-                f'&target_uids={",".join(map(str, target_uids))}' +
-                f'&count={count if count is not None else ""}' +
-                f'&offset={i}&order={order}&access_token={config.VK_CONFIG["access_token"]}&v={config.VK_CONFIG["version"]}')
-            if 'response' in (curr_resp_json := response.json()):
-                json_data.extend(curr_resp_json['response'])
+                f'friends.getMutual?source_uid={source_uid if source_uid is not None else ""}'
+                + f'&target_uids={",".join(map(str, target_uids))}'
+                + f'&count={count if count is not None else ""}'
+                + f'&offset={i}&order={order}&access_token={config.VK_CONFIG["access_token"]}&v={config.VK_CONFIG["version"]}'
+            )
+            if "response" in (curr_resp_json := response.json()):
+                json_data.extend(curr_resp_json["response"])
             else:
                 raise APIError
             if i % 3 == 2:
                 time.sleep(1)
         result = []
         for friend_list in json_data:
-            if 'common_friends' in friend_list:
-                result.append(MutualFriends(id=friend_list['id'], common_friends=friend_list['common_friends'],
-                                            common_count=friend_list['common_count']))
+            if "common_friends" in friend_list:
+                result.append(
+                    MutualFriends(
+                        id=friend_list["id"],
+                        common_friends=friend_list["common_friends"],
+                        common_count=friend_list["common_count"],
+                    )
+                )
         return result
     response = session.get(
-        f'friends.getMutual?source_uid={source_uid if source_uid is not None else ""}' +
-        f'&target_uid={target_uid if target_uid is not None else ""}' +
-        f'&count={count if count is not None else ""}' +
-        f'&offset={offset}&order={order}&access_token={config.VK_CONFIG["access_token"]}&v={config.VK_CONFIG["version"]}')
+        f'friends.getMutual?source_uid={source_uid if source_uid is not None else ""}'
+        + f'&target_uid={target_uid if target_uid is not None else ""}'
+        + f'&count={count if count is not None else ""}'
+        + f'&offset={offset}&order={order}&access_token={config.VK_CONFIG["access_token"]}&v={config.VK_CONFIG["version"]}'
+    )
     json_data_else = response.json()
-    if 'error' in json_data_else:
+    if "error" in json_data_else:
         raise APIError
-    return json_data_else['response']
+    return json_data_else["response"]

@@ -20,15 +20,16 @@ def ego_network(
     :param friends: Идентификаторы друзей, между которыми устанавливаются связи.
     """
     if friends is None:
-        friends: tp.List[int] = get_friends(user_id).items
+        friends: tp.List[int] = get_friends(user_id).items  # type:ignore
     result = set()
-    list_of_mutuals: tp.List[MutualFriends] = get_mutual(user_id, target_uids=friends)
+    list_of_mutuals: tp.List[MutualFriends] = get_mutual(
+        user_id, target_uids=friends
+    )  # type:ignore
     for mutuals in list_of_mutuals:
-        for mutual in mutuals['common_friends']:
-            result.add((mutuals['id'], mutual))
-            result.add((mutual, mutuals['id']))
+        for mutual in mutuals["common_friends"]:
+            result.add((mutuals["id"], mutual))
+            result.add((mutual, mutuals["id"]))
     return sorted(result)
-
 
 
 def plot_ego_network(net: tp.List[tp.Tuple[int, int]]) -> None:
