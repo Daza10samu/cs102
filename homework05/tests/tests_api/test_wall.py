@@ -65,6 +65,6 @@ class GetWallTestCase(unittest.TestCase):
         start = time.time()
         with patch("vkapi.wall.get_posts_2500") as get_posts_2500:
             get_posts_2500.return_value = []
-            _ = get_wall_execute(domain="cs102py", count=6000)
+            _ = get_wall_execute(domain="cs102py", max_count=1000, count=6000)
         end = time.time()
         self.assertGreaterEqual(end - start, 2.0, msg="Слишком много запросов в секунду")
