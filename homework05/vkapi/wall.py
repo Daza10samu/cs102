@@ -20,7 +20,39 @@ def get_posts_2500(
     extended: int = 0,
     fields: tp.Optional[tp.List[str]] = None,
 ) -> tp.Dict[str, tp.Any]:
-    pass
+    code = f"""
+            var result = [];
+            var i=0;
+            var count=0;
+            while (i < {max_count}){{
+                if (i+{offset}+100<={count}){{
+                    var wall = API.wall.get({{"owner_id":"{owner_id}", "domain": "{domain}", "count":100, "fields":"{','.join(fields) if fields is not None else ''}", "extended": {extended}, "filter":"{filter}", "offset": i+{offset}}});
+                    result.push(wall.items);
+                    count = wall.count;
+                }}
+                else{{
+                    var wall = API.wall.get({{"owner_id":"{owner_id}", "domain": "{domain}", "count":{count}-(i+{offset}), "fields":"{','.join(fields) if fields is not None else ''}", "extended": {extended}, "filter":"{filter}","offset": i+{offset}}});
+                    result.push(wall.items);
+                    count = wall.count;
+                    i = {max_count};
+                }}
+                i = i+100;
+            }}
+            return {{"count": count, "items": result}};"""
+    response = session.post(
+        "execute",
+        timeout=30,
+        data={
+            "code": code,
+            "access_token": config.VK_CONFIG["access_token"],
+            "v": "5.126",
+        },
+    )
+    if "error" in response.json():
+        raise APIError(
+            f"Code: {response.json()['error']['error_code']}. {response.json()['error']['error_msg']}"
+        )
+    return response.json()
 
 
 def get_wall_execute(
@@ -58,7 +90,9 @@ def get_wall_execute(
         },
     )
     if "error" in response.json():
-        raise APIError
+        raise APIError(
+            f"Code: {response.json()['error']['error_code']}. {response.json()['error']['error_msg']}"
+        )
     if count != 0:
         count = min(count, response.json()["response"]["count"])
     else:
@@ -66,43 +100,18 @@ def get_wall_execute(
     if progress is None:
         progress = lambda x, *a, **kw: x
     json_data = []
-    for i in progress(range(offset, count, max_count)):
-        code = f"""
-        var result = [];
-        var i=0;
-        var count=0;
-        while (i < {max_count if i + max_count <= count else count}){{
-            if (i+{i}+100<={count}){{
-                var wall = API.wall.get({{"owner_id":"{owner_id}", "domain": "{domain}", "count":100, "fields":"{','.join(fields) if fields is not None else ''}", "extended": {extended}, "filter":"{filter}", "offset": i+{i}}});
-                result.push(wall.items);
-                count = wall.count;
-            }}
-            else{{
-                var wall = API.wall.get({{"owner_id":"{owner_id}", "domain": "{domain}", "count":{count}-(i+{i}), "fields":"{','.join(fields) if fields is not None else ''}", "extended": {extended}, "filter":"{filter}","offset": i+{i}}});
-                result.push(wall.items);
-                count = wall.count;
-            }}
-            i = i+100;
-        }}
-        return {{"count": count, "items": result}};"""
-        response = session.post(
-            "execute",
-            timeout=30,
-            data={
-                "code": code,
-                "access_token": config.VK_CONFIG["access_token"],
-                "v": "5.126",
-            },
+    for j, i in progress(enumerate(range(offset, count, max_count))):
+        response_json = get_posts_2500(
+            owner_id, domain, offset + i, count, max_count, filter, extended, fields
         )
-        if "error" in response.json():
-            raise APIError
         res = []
-        for x in response.json()["response"]["items"]:
-            if type(x) is dict:
-                res.append(x)
-            else:
-                res.extend(x)
-        json_data.extend(res)
-        if (i // max_count) % 3 == 1:
+        if isinstance(response_json, dict):
+            for x in response_json["response"]["items"]:
+                if isinstance(x, dict):
+                    res.append(x)
+                else:
+                    res.extend(x)
+            json_data.extend(res)
+        if j % 3 == 1:
             time.sleep(1)
     return json_normalize(json_data)

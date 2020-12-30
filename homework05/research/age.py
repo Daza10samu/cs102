@@ -21,12 +21,15 @@ def age_predict(user_id: int) -> tp.Optional[float]:
     user: tp.Dict[str, tp.Any]
     for user in friends:
         date: tp.List[int]
-        if "bdate" in user and len(date := list(map(int, user["bdate"].split(".")))) == 3:
+        try:
+            date = list(map(int, user["bdate"].split(".")))
             today = dt.date.today()
             age = today.year - date[2] - 1
             if today.month > date[1] or (today.month == date[1] and today.day > date[0]):
                 age += 1
             ages.append(age)
+        except (KeyError, IndexError):
+            continue
     if ages:
         return statistics.median(ages)
     else:

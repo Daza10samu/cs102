@@ -21,14 +21,13 @@ def ego_network(
     """
     if friends is None:
         friends: tp.List[int] = get_friends(user_id).items  # type:ignore
-    result = set()
+    result = list()
     list_of_mutuals: tp.List[MutualFriends] = get_mutual(
         user_id, target_uids=friends
     )  # type:ignore
     for mutuals in list_of_mutuals:
         for mutual in mutuals["common_friends"]:
-            result.add((mutuals["id"], mutual))
-            result.add((mutual, mutuals["id"]))
+            result.append((mutuals["id"], mutual))
     return sorted(result)
 
 
