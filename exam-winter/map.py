@@ -1,27 +1,15 @@
 import typing as tp
 import argparse
 
-CONFORMITY_TABLE = {
-    ' ': -1,
-    '☒': 0,
-    '☺': 1,
-    '☼': 2,
-    '.': 3
-}
-CONFORMITY_TABLE_REVERSE = {
-    -1: ' ',
-    0: '☒',
-    1: '☺',
-    2: '☼',
-    3: '.'
-}
+CONFORMITY_TABLE = {" ": -1, "☒": 0, "☺": 1, "☼": 2, ".": 3}
+CONFORMITY_TABLE_REVERSE = {-1: " ", 0: "☒", 1: "☺", 2: "☼", 3: "."}
 
 
-def file_reader(file_name: str = '1.map') -> tp.Tuple[tp.List[tp.List[int]], tp.Tuple[int, int]]:
+def file_reader(file_name: str = "1.map") -> tp.Tuple[tp.List[tp.List[int]], tp.Tuple[int, int]]:
     game_map: tp.List[tp.List[int]] = []
     start_pos = (0, 0)
     with open(file_name) as f:
-        for ind_line, line in enumerate(map(lambda s: s.strip('\n'), f.readlines())):
+        for ind_line, line in enumerate(map(lambda s: s.strip("\n"), f.readlines())):
             game_map.append([])
             for ind_col, char in enumerate(line):
                 game_map[-1].append(CONFORMITY_TABLE[char])
@@ -30,17 +18,27 @@ def file_reader(file_name: str = '1.map') -> tp.Tuple[tp.List[tp.List[int]], tp.
     return game_map, start_pos
 
 
-def relax_and_print(game_map: tp.List[tp.List[int]], map_to_relax: tp.Dict[tp.Tuple[int, int], tp.Tuple[int, int]],
-                    start_pos: tp.Tuple[int, int], end_pos: tp.Tuple[int, int]):
+def relax(
+    game_map: tp.List[tp.List[int]],
+    map_to_relax: tp.Dict[tp.Tuple[int, int], tp.Tuple[int, int]],
+    start_pos: tp.Tuple[int, int],
+    end_pos: tp.Tuple[int, int],
+) -> tp.List[tp.List[int]]:
     curr_pos = map_to_relax[end_pos]
     while curr_pos != start_pos:
         game_map[curr_pos[0]][curr_pos[1]] = 1
         curr_pos = map_to_relax[curr_pos]
-    for i in game_map:
-        print(''.join(map(lambda x: CONFORMITY_TABLE_REVERSE[x], i)))
+    return game_map
 
 
-def solve(game_map: tp.List[tp.List[int]], start_pos: tp.Tuple[int, int]):
+def solve(
+    game_map: tp.List[tp.List[int]], start_pos: tp.Tuple[int, int]
+) -> tp.Tuple[
+    tp.List[tp.List[int]],
+    tp.Dict[tp.Tuple[int, int], tp.Tuple[int, int]],
+    tp.Tuple[int, int],
+    tp.Tuple[int, int],
+]:
     que = [start_pos]
     map_to_relax = {start_pos: start_pos}
     while que:
@@ -59,16 +57,21 @@ def solve(game_map: tp.List[tp.List[int]], start_pos: tp.Tuple[int, int]):
                             que.append((i, j))
                     if game_map[i][j] == 2:
                         map_to_relax.update({(i, j): curr_checking_pos})
-                        relax_and_print(game_map, map_to_relax, start_pos, (i, j))
-                        return
+                        return game_map, map_to_relax, start_pos, (i, j)
                 except IndexError:
                     pass
-    for i in game_map:
-        print(''.join(map(lambda x: CONFORMITY_TABLE_REVERSE[x], i)))
+    return game_map, map_to_relax, start_pos, (0, 0)
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='For exam-winter')
-    parser.add_argument('file_name', help='Path to file', type=str)
+def main():
+    parser = argparse.ArgumentParser(description="For exam-winter")
+    parser.add_argument("file_name", help="Path to file", type=str)
     args = parser.parse_args()
-    solve(*file_reader(args.file_name))
+    game_map, map_to_relax, start_pos, end_pos = solve(*file_reader(args.file_name))
+    game_map = relax(game_map, map_to_relax, start_pos, end_pos)
+    for i in game_map:
+        print("".join(map(lambda x: CONFORMITY_TABLE_REVERSE[x], i)))
+
+
+if __name__ == "__main__":
+    main()
