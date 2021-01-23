@@ -51,10 +51,9 @@ def solve(
                     continue
                 try:
                     i, j = curr_checking_pos[0] - k, curr_checking_pos[1] - o
-                    if game_map[i][j] == 3:
-                        if not (i, j) in map_to_relax:
-                            map_to_relax.update({(i, j): curr_checking_pos})
-                            que.append((i, j))
+                    if game_map[i][j] == 3 and not (i, j) in map_to_relax:
+                        map_to_relax.update({(i, j): curr_checking_pos})
+                        que.append((i, j))
                     if game_map[i][j] == 2:
                         map_to_relax.update({(i, j): curr_checking_pos})
                         return game_map, map_to_relax, start_pos, (i, j)
