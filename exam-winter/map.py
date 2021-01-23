@@ -1,5 +1,7 @@
-import typing as tp
+#! /bin/env python3
+
 import argparse
+import typing as tp
 
 CONFORMITY_TABLE = {" ": -1, "☒": 0, "☺": 1, "☼": 2, ".": 3}
 CONFORMITY_TABLE_REVERSE = {-1: " ", 0: "☒", 1: "☺", 2: "☼", 3: "."}
@@ -24,6 +26,8 @@ def relax(
     start_pos: tp.Tuple[int, int],
     end_pos: tp.Tuple[int, int],
 ) -> tp.List[tp.List[int]]:
+    if end_pos == (-1, -1):
+        return game_map
     curr_pos = map_to_relax[end_pos]
     while curr_pos != start_pos:
         game_map[curr_pos[0]][curr_pos[1]] = 1
@@ -59,7 +63,7 @@ def solve(
                         return game_map, map_to_relax, start_pos, (i, j)
                 except IndexError:
                     pass
-    return game_map, map_to_relax, start_pos, (0, 0)
+    return game_map, map_to_relax, start_pos, (-1, -1)
 
 
 def main():

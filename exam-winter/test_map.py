@@ -1,4 +1,6 @@
-from map import solve, file_reader, relax
+#! /bin/env python3
+
+from map import file_reader, relax, solve
 
 
 def test_file_reader():
