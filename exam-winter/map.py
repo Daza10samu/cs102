@@ -21,7 +21,7 @@ def file_reader(file_name: str = '1.map') -> tp.Tuple[tp.List[tp.List[int]], tp.
     game_map: tp.List[tp.List[int]] = []
     start_pos = (0, 0)
     with open(file_name) as f:
-        for ind_line, line in enumerate(map(lambda s: s.strip(), f.readlines())):
+        for ind_line, line in enumerate(map(lambda s: s.strip('\n'), f.readlines())):
             game_map.append([])
             for ind_col, char in enumerate(line):
                 game_map[-1].append(CONFORMITY_TABLE[char])
