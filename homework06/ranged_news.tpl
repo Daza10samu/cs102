@@ -6,7 +6,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.12/semantic.min.js"></script>
     </head>
-    <body>
+    <body style="background-color:#151515;">
         <div class="ui container" style="padding-top: 10px;">
         <table class="ui celled table">
             <thead>
@@ -18,7 +18,7 @@
             </thead>
             <tbody>
                 %for row in rows:
-                <tr>
+                <tr style="background-color:{{ row[6] }}">
                     <td><a href="{{ row[3] }}">{{ row[1] }}</a></td>
                     <td>{{ row[2] }}</td>
                     <td>{{ row[5] }}</td>

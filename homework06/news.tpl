@@ -1,4 +1,4 @@
-<!-- news.tpl -->
+<!-- ranged_news.tpl -->
 <!DOCTYPE html>
 <html>
     <head>
