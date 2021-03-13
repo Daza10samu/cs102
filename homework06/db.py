@@ -21,7 +21,7 @@ def execute_sql_query(sql_query: str):
 def create_table():
     execute_sql_query(
         """CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT,
-    author TEXT, url TEXT, comments INTEGER, points INTEGER, label TEXT); """
+    author TEXT, url TEXT, comments INTEGER, points INTEGER, label TEXT);"""
     )
 
 
@@ -48,10 +48,10 @@ def add_elements(elements: typing.List[typing.Dict[str, typing.Any]]):
     for element in elements:
         found_elems = (
             get_cursor()
-                .execute(
+            .execute(
                 f"""SELECT id FROM news WHERE title='{normalize_str_for_sql(element['title'])}';"""
             )
-                .fetchall()
+            .fetchall()
         )
         if found_elems:
             execute_sql_query(
