@@ -100,5 +100,5 @@ if __name__ == "__main__":
     make_connection()
     create_table()
     (*xy,) = filter(lambda x: not x[-1] is None, get_news_from_db())
-    classifier.fit(list(map(lambda x: x[1], xy)), list(map(lambda x: normalizer[x[-1]], xy))) # type: ignore
+    classifier.fit(list(map(lambda x: x[1], xy)), list(map(lambda x: normalizer[x[-1]], xy)))  # type: ignore
     run()
