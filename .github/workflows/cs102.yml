@@ -27,4 +27,5 @@ jobs:
         pylint --exit-zero ${{ github.head_ref }}
     - name: Run unittests
       run: |
+        cd ${{ github.head_ref }}
         python -m pytest ${{ github.head_ref }}
