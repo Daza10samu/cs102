@@ -59,7 +59,7 @@ def ranged_list():
 @route("/all")
 @view("ranged_news")
 def all():
-    data = list(get_news_from_db())
+    data = list(get_news_from_db(conn))
     rows = []
     for i in range(len(data)):
         if data[i][6] is None:
