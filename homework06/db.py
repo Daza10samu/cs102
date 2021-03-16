@@ -1,33 +1,31 @@
 import sqlite3
 import typing
 
-conn: sqlite3.Connection
-
 
 def make_connection(file_name="news.db"):
-    global conn
-    conn = sqlite3.connect(file_name)
+    return sqlite3.connect(file_name)
 
 
-def get_cursor() -> sqlite3.Cursor:
+def get_cursor(conn: sqlite3.Connection) -> sqlite3.Cursor:
     return conn.cursor()
 
 
-def execute_sql_query(sql_query: str):
-    get_cursor().execute(sql_query)
+def execute_sql_query(conn: sqlite3.Connection, sql_query: str):
+    get_cursor(conn).execute(sql_query)
     conn.commit()
 
 
-def create_table():
+def create_table(conn: sqlite3.Connection):
     execute_sql_query(
+        conn,
         """CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT,
-    author TEXT, url TEXT, comments INTEGER, points INTEGER, label TEXT);"""
+                  author TEXT, url TEXT, comments INTEGER, points INTEGER, label TEXT);""",
     )
 
 
-def drop_table():
+def drop_table(conn: sqlite3.Connection):
     try:
-        execute_sql_query("""DROP TABLE news;""")
+        execute_sql_query(conn, """DROP TABLE news;""")
     except sqlite3.OperationalError:
         pass
 
@@ -36,33 +34,34 @@ def normalize_str_for_sql(s: str) -> str:
     return s.replace("'", "+CHAR(39)+")
 
 
-def change_label(id: int, label: str):
-    execute_sql_query(f"""UPDATE news SET label='{label}' WHERE id={id}""")
+def change_label(conn: sqlite3.Connection, id: str, label: str):
+    execute_sql_query(
+        conn, f"""UPDATE news SET label='{normalize_str_for_sql(label)}' WHERE id={int(id)}"""
+    )
 
 
-def get_news_from_db() -> typing.List[typing.Tuple[typing.Any]]:
-    return get_cursor().execute("""SELECT * FROM news;""").fetchall()
+def get_news_from_db(conn: sqlite3.Connection) -> typing.List[typing.Tuple[typing.Any]]:
+    return get_cursor(conn).execute("""SELECT * FROM news;""").fetchall()
 
 
-def add_elements(elements: typing.List[typing.Dict[str, typing.Any]]):
+def add_news(conn: sqlite3.Connection, elements: typing.List[typing.Dict[str, typing.Any]]):
     for element in elements:
-        found_elems = (
-            get_cursor()
+        found_news = (
+            get_cursor(conn)
             .execute(
                 f"""SELECT id FROM news WHERE title='{normalize_str_for_sql(element['title'])}';"""
             )
             .fetchall()
         )
-        if found_elems:
+        if found_news:
             execute_sql_query(
-                f"""UPDATE news SET comments={element['comments']} WHERE id={found_elems[0][0]}"""
-            )
-            execute_sql_query(
-                f"""UPDATE news SET points={element['points']} WHERE id={found_elems[0][0]}"""
+                conn,
+                f"""UPDATE news SET comments={element['comments']}, points={element['points']} WHERE id={found_news[0][0]}""",
             )
         else:
             execute_sql_query(
+                conn,
                 f"""INSERT INTO news (title, author, url, comments, points) VALUES
             ('{normalize_str_for_sql(element['title'])}', '{normalize_str_for_sql(element['author'])}',
-            '{element['url']}', {element['comments']}, {element['points']});"""
+            '{element['url']}', {element['comments']}, {element['points']});""",
             )

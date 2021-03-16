@@ -1,7 +1,7 @@
 import sqlite3
 
 from db import (
-    add_elements,
+    add_news,
     change_label,
     create_table,
     drop_table,
@@ -13,7 +13,7 @@ from db import (
 
 
 def test_make_connection():
-    make_connection("/tmp/tmp.db")
+    conn = make_connection("/tmp/tmp.db")
     try:
         with open("/tmp/tmp.db", "r") as f:
             pass
@@ -22,46 +22,47 @@ def test_make_connection():
 
 
 def test_create_table():
-    make_connection("/tmp/tmp.db")
-    create_table()
+    conn = make_connection("/tmp/tmp.db")
+    create_table(conn)
     try:
-        get_news_from_db()
+        get_news_from_db(conn)
     except sqlite3.OperationalError:
         assert False
 
 
 def test_get_cursor():
+    conn = make_connection("/tmp/tmp.db")
     make_connection("/tmp/tmp.db")
-    assert type(get_cursor()) == sqlite3.Cursor
+    assert type(get_cursor(conn)) == sqlite3.Cursor
 
 
 def test_normalize_str_for_sql():
     assert normalize_str_for_sql("'") == "+CHAR(39)+"
 
 
-def test_add_elements():
-    make_connection("/tmp/tmp.db")
-    create_table()
-    add_elements([{"title": "None", "comments": 0, "points": 0, "author": "None", "url": "None"}])
-    assert get_news_from_db() == [(1, "None", "None", "None", 0, 0, None)]
-    drop_table()
+def test_add_news():
+    conn = make_connection("/tmp/tmp.db")
+    create_table(conn)
+    add_news(conn, [{"title": "None", "comments": 0, "points": 0, "author": "None", "url": "None"}])
+    assert get_news_from_db(conn) == [(1, "None", "None", "None", 0, 0, None)]
+    drop_table(conn)
 
 
 def test_drop_table():
-    make_connection("/tmp/tmp.db")
-    create_table()
-    drop_table()
+    conn = make_connection("/tmp/tmp.db")
+    create_table(conn)
+    drop_table(conn)
     try:
-        get_news_from_db()
+        get_news_from_db(conn)
     except sqlite3.OperationalError:
         return
     assert False
 
 
 def test_change_label():
-    make_connection("/tmp/tmp.db")
-    create_table()
-    add_elements([{"title": "None", "comments": 0, "points": 0, "author": "None", "url": "None"}])
-    change_label(1, "Nope")
-    assert get_news_from_db() == [(1, "None", "None", "None", 0, 0, "Nope")]
-    drop_table()
+    conn = make_connection("/tmp/tmp.db")
+    create_table(conn)
+    add_news(conn, [{"title": "None", "comments": 0, "points": 0, "author": "None", "url": "None"}])
+    change_label(conn, "1", "Nope")
+    assert get_news_from_db(conn) == [(1, "None", "None", "None", 0, 0, "Nope")]
+    drop_table(conn)
