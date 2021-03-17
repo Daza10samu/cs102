@@ -4,9 +4,9 @@ import pathlib
 
 def test_NaiveBayesClassifier():
     with (pathlib.Path(__file__).parent / "SMSSpamCollection").open() as f:
-        (*data,) = filter(lambda it: it != "", f.read().split("\n"))
-    (*x,) = map(lambda it: it.split("\t")[1], data)
-    (*y,) = map(lambda it: it.split("\t")[0], data)
+        data = list(filter(lambda it: it != "", f.read().split("\n")))
+    x = list(map(lambda it: it.split("\t")[1], data))
+    y = list(map(lambda it: it.split("\t")[0], data))
     x_train, y_train, x_test, y_test = x[:3900], y[:3900], x[3900:], y[3900:]
     model = NaiveBayesClassifier()
     model.fit(map(lambda it: clean(it).lower(), x_train), y_train)
