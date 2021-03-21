@@ -2,7 +2,7 @@ import sqlite3
 import typing
 
 
-def make_connection(file_name="news.db"):
+def make_connection(file_name: str = "news.db") -> sqlite3.Connection:
     return sqlite3.connect(file_name)
 
 
@@ -10,12 +10,12 @@ def get_cursor(conn: sqlite3.Connection) -> sqlite3.Cursor:
     return conn.cursor()
 
 
-def execute_sql_query(conn: sqlite3.Connection, sql_query: str):
+def execute_sql_query(conn: sqlite3.Connection, sql_query: str) -> None:
     get_cursor(conn).execute(sql_query)
     conn.commit()
 
 
-def create_table(conn: sqlite3.Connection):
+def create_table(conn: sqlite3.Connection) -> None:
     execute_sql_query(
         conn,
         """CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT,
@@ -23,7 +23,7 @@ def create_table(conn: sqlite3.Connection):
     )
 
 
-def drop_table(conn: sqlite3.Connection):
+def drop_table(conn: sqlite3.Connection) -> None:
     try:
         execute_sql_query(conn, """DROP TABLE news;""")
     except sqlite3.OperationalError:
@@ -34,17 +34,19 @@ def normalize_str_for_sql(s: str) -> str:
     return s.replace("'", "+CHAR(39)+")
 
 
-def change_label(conn: sqlite3.Connection, id: str, label: str):
+def change_label(conn: sqlite3.Connection, id: str, label: str) -> None:
     execute_sql_query(
         conn, f"""UPDATE news SET label='{normalize_str_for_sql(label)}' WHERE id={int(id)}"""
     )
 
 
-def get_news_from_db(conn: sqlite3.Connection) -> typing.List[typing.Tuple[typing.Any]]:
+def get_news_from_db(
+    conn: sqlite3.Connection,
+) -> typing.List[typing.Tuple[int, str, str, str, int, int, typing.Optional[str]]]:
     return get_cursor(conn).execute("""SELECT * FROM news;""").fetchall()
 
 
-def add_news(conn: sqlite3.Connection, elements: typing.List[typing.Dict[str, typing.Any]]):
+def add_news(conn: sqlite3.Connection, elements: typing.List[typing.Dict[str, typing.Any]]) -> None:
     for element in elements:
         found_news = (
             get_cursor(conn)

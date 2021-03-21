@@ -8,14 +8,14 @@ class RequestNotOkError(Exception):
     pass
 
 
-def make_request(url) -> requests.Response:
+def make_request(url: str) -> requests.Response:
     resp = requests.get(url)
     if not resp.ok:
         raise RequestNotOkError(str(resp.status_code) + "\n" + str(resp.content))
     return resp
 
 
-def get_news(url: str, n: int = 3):
+def get_news(url: str, n: int = 3) -> typing.List[typing.Dict[str, typing.Any]]:
     news = []
     b_url = url
     for _ in range(n):
@@ -59,6 +59,6 @@ def extract_news(content: str) -> typing.List[typing.Dict[str, typing.Any]]:
 
 def extract_next_page(content: str) -> str:
     try:
-        return etree.HTML(content).xpath("//a[@class='morelink']")[0].get("href")
+        return str(etree.HTML(content).xpath("//a[@class='morelink']")[0].get("href"))
     except IndexError:
         return ""

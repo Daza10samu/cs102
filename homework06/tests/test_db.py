@@ -12,7 +12,7 @@ from db import (
 )
 
 
-def test_make_connection():
+def test_make_connection() -> None:
     conn = make_connection("/tmp/tmp.db")
     try:
         with open("/tmp/tmp.db", "r") as f:
@@ -21,7 +21,7 @@ def test_make_connection():
         assert False
 
 
-def test_create_table():
+def test_create_table() -> None:
     conn = make_connection("/tmp/tmp.db")
     create_table(conn)
     try:
@@ -30,17 +30,17 @@ def test_create_table():
         assert False
 
 
-def test_get_cursor():
+def test_get_cursor() -> None:
     conn = make_connection("/tmp/tmp.db")
     make_connection("/tmp/tmp.db")
     assert type(get_cursor(conn)) == sqlite3.Cursor
 
 
-def test_normalize_str_for_sql():
+def test_normalize_str_for_sql() -> None:
     assert normalize_str_for_sql("'") == "+CHAR(39)+"
 
 
-def test_add_news():
+def test_add_news() -> None:
     conn = make_connection("/tmp/tmp.db")
     create_table(conn)
     add_news(conn, [{"title": "None", "comments": 0, "points": 0, "author": "None", "url": "None"}])
@@ -48,7 +48,7 @@ def test_add_news():
     drop_table(conn)
 
 
-def test_drop_table():
+def test_drop_table() -> None:
     conn = make_connection("/tmp/tmp.db")
     create_table(conn)
     drop_table(conn)
@@ -59,7 +59,7 @@ def test_drop_table():
     assert False
 
 
-def test_change_label():
+def test_change_label() -> None:
     conn = make_connection("/tmp/tmp.db")
     create_table(conn)
     add_news(conn, [{"title": "None", "comments": 0, "points": 0, "author": "None", "url": "None"}])
