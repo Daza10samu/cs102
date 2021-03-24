@@ -1,7 +1,8 @@
 import pathlib
 import typing
 
-from classifier import NaiveBayesClassifier, clean
+from classifier import NaiveBayesClassifier
+from textutils import clean
 
 
 def test_NaiveBayesClassifier() -> None:

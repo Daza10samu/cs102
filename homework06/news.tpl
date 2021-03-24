@@ -19,13 +19,13 @@
             <tbody>
                 %for row in rows:
                 <tr>
-                    <td><a href="{{ row[3] }}">{{ row[1] }}</a></td>
-                    <td>{{ row[2] }}</td>
-                    <td>{{ row[5] }}</td>
-                    <td>{{ row[4] }}</td>
-                    <td class="positive"><a href="/add_label/?label=good&id={{ row[0] }}">Интересно</a></td>
-                    <td class="active"><a href="/add_label/?label=maybe&id={{ row[0] }}">Возможно</a></td>
-                    <td class="negative"><a href="/add_label/?label=never&id={{ row[0] }}">Не интересно</a></td>
+                    <td><a href="{{ row.url }}">{{ row.title }}</a></td>
+                    <td>{{ row.author }}</td>
+                    <td>{{ row.points }}</td>
+                    <td>{{ row.comments }}</td>
+                    <td class="positive"><a href="/add_label/?label=good&id={{ row.id }}">Интересно</a></td>
+                    <td class="active"><a href="/add_label/?label=maybe&id={{ row.id }}">Возможно</a></td>
+                    <td class="negative"><a href="/add_label/?label=never&id={{ row.id }}">Не интересно</a></td>
                 </tr>
                 %end
             </tbody>

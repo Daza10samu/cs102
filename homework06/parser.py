@@ -1,4 +1,4 @@
-import typing
+import typing as tp
 
 import requests
 from lxml import etree
@@ -9,13 +9,32 @@ class RequestNotOkError(Exception):
 
 
 def make_request(url: str) -> requests.Response:
+    """
+    Makes request to url
+
+    Args:
+        url: str
+
+    Returns:
+        Response: requests response
+    """
     resp = requests.get(url)
     if not resp.ok:
         raise RequestNotOkError(str(resp.status_code) + "\n" + str(resp.content))
     return resp
 
 
-def get_news(url: str, n: int = 3) -> typing.List[typing.Dict[str, typing.Any]]:
+def get_news(url: str, n: int = 3) -> tp.List[tp.Dict[str, tp.Any]]:
+    """
+    Get news from the site (works only with https://news.ycombinator.com/)
+
+    Args:
+        url: str
+        n: int, count of pages we will try to go after that
+
+    Returns:
+        list: List of news
+    """
     news = []
     b_url = url
     for _ in range(n):
@@ -28,7 +47,16 @@ def get_news(url: str, n: int = 3) -> typing.List[typing.Dict[str, typing.Any]]:
     return news
 
 
-def extract_news(content: str) -> typing.List[typing.Dict[str, typing.Any]]:
+def extract_news(content: str) -> tp.List[tp.Dict[str, tp.Any]]:
+    """
+    Extracts news from the HTML document (works only with pages from https://news.ycombinator.com/)
+
+    Args:
+        content: html document with news
+
+    Returns:
+        list: List of news in the current page
+    """
     tree = etree.HTML(content)
     news = []
     for i in tree.xpath("//table[@class='itemlist']/tr"):
@@ -58,6 +86,15 @@ def extract_news(content: str) -> typing.List[typing.Dict[str, typing.Any]]:
 
 
 def extract_next_page(content: str) -> str:
+    """
+    Extracts url to next page if it is available (works only with pages from https://news.ycombinator.com/)
+
+    Args:
+        content: html document with news
+
+    Returns:
+        str: url to next page
+    """
     try:
         return str(etree.HTML(content).xpath("//a[@class='morelink']")[0].get("href"))
     except IndexError:
