@@ -4,6 +4,10 @@ import typing as tp
 from News import News
 
 
+class NoSuchTable(Exception):
+    pass
+
+
 def make_connection(file_name: str = "news.db") -> sqlite3.Connection:
     """
     Make connection to sqlite db
@@ -90,9 +94,13 @@ def change_label(conn: sqlite3.Connection, id: str, label: str) -> None:
         id: id of the news. Str but it can be converted to int
         label: str
     """
-    execute_sql_query(
-        conn, f"""UPDATE news SET label='{normalize_str_for_sql(label)}' WHERE id={int(id)}"""
-    )
+    try:
+        execute_sql_query(
+            conn, f"""UPDATE news SET label='{normalize_str_for_sql(label)}' WHERE id={int(id)}"""
+        )
+    except sqlite3.OperationalError as e:
+        if "no such table" in str(e):
+            raise NoSuchTable("no such table")
 
 
 def get_news_from_db(conn: sqlite3.Connection) -> tp.List[News]:
