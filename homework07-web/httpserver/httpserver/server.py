@@ -40,7 +40,7 @@ class TCPServer:
                 while 1:
                     conn, addr = sock.accept()
                     conn.settimeout(self.timeout)
-                    self.handle_accept(conn)
+                    exec.submit(self.handle_accept, conn)
             except KeyboardInterrupt:
                 print('Exit')
         sock.close()
