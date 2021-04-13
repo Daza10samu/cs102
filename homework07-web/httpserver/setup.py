@@ -6,6 +6,5 @@ setup(
     packages=["httpserver"],
     install_requires=[
         "httptools",
-        'importlib; python_version >= "3.6"',
     ],
 )
