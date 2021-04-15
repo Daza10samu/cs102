@@ -3,8 +3,7 @@ from __future__ import annotations
 import socket
 import typing as tp
 
-from . import parsers
-
+from .parsers import RequestParserError, request_parser
 from .request import HTTPRequest
 from .response import HTTPResponse
 
@@ -43,7 +42,7 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
     request_klass = HTTPRequest
     response_klass = HTTPResponse
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:  # type:ignore
         super().__init__(*args, **kwargs)
         self._url: bytes = b""
         self._headers: tp.Dict[bytes, bytes] = {}
@@ -64,17 +63,15 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
         self.close()
 
     def parse_request(self) -> tp.Optional[HTTPRequest]:
-        total_data = b''
+        total_data = b""
         try:
-            while 1:
-                data = self.socket.recv(65536)
-                if data:
-                    total_data += data
-                else:
-                    break
+            total_data = self.socket.recv(65536)
         except (socket.timeout, BlockingIOError):
             pass
-        return parsers.request_parser(total_data)
+        try:
+            return request_parser(total_data)
+        except RequestParserError:
+            return None
 
     def handle_request(self, request: HTTPRequest) -> HTTPResponse:
         return HTTPResponse(200, {}, b"ok")

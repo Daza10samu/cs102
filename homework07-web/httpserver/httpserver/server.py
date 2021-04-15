@@ -1,20 +1,20 @@
 import socket
 import threading
-from concurrent.futures import ThreadPoolExecutor
 import typing as tp
+from concurrent.futures import ThreadPoolExecutor
 
-from .handlers import BaseRequestHandler, BaseHTTPRequestHandler
+from .handlers import BaseHTTPRequestHandler, BaseRequestHandler
 
 
 class TCPServer:
     def __init__(
-            self,
-            host: str = "localhost",
-            port: int = 5000,
-            backlog_size: int = 1,
-            max_workers: int = 1,
-            timeout: tp.Optional[float] = None,
-            request_handler_cls: tp.Type[BaseRequestHandler] = BaseRequestHandler,
+        self,
+        host: str = "localhost",
+        port: int = 5000,
+        backlog_size: int = 1,
+        max_workers: int = 1,
+        timeout: tp.Optional[float] = None,
+        request_handler_cls: tp.Type[BaseRequestHandler] = BaseRequestHandler,
     ) -> None:
         self.host = host
         self.port = port
@@ -42,7 +42,7 @@ class TCPServer:
                     conn.settimeout(self.timeout)
                     exec.submit(self.handle_accept, conn)
             except KeyboardInterrupt:
-                print('Exit')
+                print("Exit")
         sock.close()
 
     def handle_accept(self, server_socket: socket.socket) -> None:
@@ -51,10 +51,13 @@ class TCPServer:
 
 
 class HTTPServer(TCPServer):
-    def __init__(self, host: str = "localhost",
-                 port: int = 8080,
-                 backlog_size: int = 1,
-                 max_workers: int = 1,
-                 timeout: tp.Optional[float] = None,
-                 request_handler_cls: tp.Type[BaseRequestHandler] = BaseHTTPRequestHandler):
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 8080,
+        backlog_size: int = 1,
+        max_workers: int = 1,
+        timeout: tp.Optional[float] = None,
+        request_handler_cls: tp.Type[BaseRequestHandler] = BaseHTTPRequestHandler,
+    ):
         super().__init__(host, port, backlog_size, max_workers, timeout, request_handler_cls)

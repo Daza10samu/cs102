@@ -9,17 +9,17 @@ class TestStaticHTTPServer(unittest.TestCase):
     host = "http://localhost"
     port = 5000
 
-    def setUp(self):
+    def setUp(self) -> None:
         pass
 
-    def test_empty_request(self):
+    def test_empty_request(self) -> None:
         """Send empty request"""
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(("localhost", self.port))
         s.sendall(b"")
         s.close()
 
-    def test_connection_timeout(self):
+    def test_connection_timeout(self) -> None:
         """Connection timeout"""
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(("localhost", self.port))
@@ -29,7 +29,7 @@ class TestStaticHTTPServer(unittest.TestCase):
         s.close()
         self.assertIn(b"HTTP/1.1 400 Bad Request\r\n", data)
 
-    def test_bad_request(self):
+    def test_bad_request(self) -> None:
         """Bad request"""
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(("localhost", self.port))
@@ -38,19 +38,19 @@ class TestStaticHTTPServer(unittest.TestCase):
         s.close()
         self.assertIn(b"HTTP/1.1 400 Bad Request\r\n", data)
 
-    def test_server_header(self):
+    def test_server_header(self) -> None:
         """Server header exists"""
         r = requests.get(f"{self.host}:{self.port}")
         server = r.headers.get("Server")
         self.assertIsNotNone(server)
 
-    def test_date_header(self):
+    def test_date_header(self) -> None:
         """Date header exists"""
         r = requests.get(f"{self.host}:{self.port}")
         date = r.headers.get("Date")
         self.assertIsNotNone(date)
 
-    def test_directory_index(self):
+    def test_directory_index(self) -> None:
         """Directory index file exists"""
         # fmt: off
         expected_data = textwrap.dedent("""
@@ -65,32 +65,32 @@ class TestStaticHTTPServer(unittest.TestCase):
         data = r.content.decode()
         length = r.headers.get("Content-Length")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(int(length), 119)
+        self.assertEqual(int(length), 119)  # type: ignore
         self.assertEqual(data, expected_data)
 
-    def test_index_not_found(self):
+    def test_index_not_found(self) -> None:
         """Directory index file absent"""
         r = requests.get(f"{self.host}:{self.port}/dir/")
         self.assertEqual(int(r.status_code), 404)
 
-    def test_file_not_found(self):
+    def test_file_not_found(self) -> None:
         """Absent file returns 404"""
         r = requests.get(f"{self.host}:{self.port}/404.html")
         self.assertEqual(int(r.status_code), 404)
 
-    def test_file_in_nested_folders(self):
+    def test_file_in_nested_folders(self) -> None:
         """File located in nested folders"""
         r = requests.get(f"{self.host}:{self.port}/dir1/dir2/dir3/quote.txt")
         data = r.content
         length = r.headers.get("Content-Length")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(int(length), 62)
+        self.assertEqual(int(length), 62)  # type: ignore
         self.assertEqual(len(data), 62)
         self.assertEqual(
             data.decode(), "Would you tell me, please, which way I ought to go from here?\n"
         )
 
-    def test_file_with_slash(self):
+    def test_file_with_slash(self) -> None:
         """Slash after filename"""
         # fmt: off
         expected_data = textwrap.dedent("""
@@ -105,10 +105,10 @@ class TestStaticHTTPServer(unittest.TestCase):
         data = r.content.decode()
         length = r.headers.get("Content-Length")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(int(length), 119)
+        self.assertEqual(int(length), 119)  # type: ignore
         self.assertEqual(data, expected_data)
 
-    def test_file_with_query_string(self):
+    def test_file_with_query_string(self) -> None:
         """Query string after filename"""
         # fmt: off
         expected_data = textwrap.dedent("""
@@ -123,20 +123,20 @@ class TestStaticHTTPServer(unittest.TestCase):
         data = r.content.decode()
         length = r.headers.get("Content-Length")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(int(length), 119)
+        self.assertEqual(int(length), 119)  # type: ignore
         self.assertEqual(data, expected_data)
 
-    def test_file_with_spaces(self):
+    def test_file_with_spaces(self) -> None:
         """Filename with spaces"""
         r = requests.get(f"{self.host}:{self.port}/space%20in%20name.txt")
         data = r.content
         length = r.headers.get("Content-Length")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(int(length), 19)
+        self.assertEqual(int(length), 19)  # type: ignore
         self.assertEqual(len(data), 19)
         self.assertEqual(data.decode(), "letters and spaces\n")
 
-    def test_file_urlencoded(self):
+    def test_file_urlencoded(self) -> None:
         """Urlencoded filename"""
         # fmt: off
         expected_data = textwrap.dedent("""
@@ -151,25 +151,25 @@ class TestStaticHTTPServer(unittest.TestCase):
         data = r.content.decode()
         length = r.headers.get("Content-Length")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(int(length), 119)
+        self.assertEqual(int(length), 119)  # type: ignore
         self.assertEqual(data, expected_data)
 
-    def test_document_root_escaping(self):
+    def test_document_root_escaping(self) -> None:
         """Document root escaping forbidden"""
         r = requests.get(f"{self.host}:{self.port}/../passwd")
         self.assertIn(r.status_code, (400, 403, 404))
 
-    def test_file_with_dot_in_name(self):
+    def test_file_with_dot_in_name(self) -> None:
         """File with two dots in name"""
         r = requests.get(f"{self.host}:{self.port}/dir1/dot..txt")
         data = r.content.decode()
         length = r.headers.get("Content-Length")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(int(length), 5)
+        self.assertEqual(int(length), 5)  # type: ignore
         self.assertEqual(len(data), 5)
         self.assertEqual("hello", data)
 
-    def test_head_method(self):
+    def test_head_method(self) -> None:
         """Head method support"""
         r = requests.head(f"{self.host}:{self.port}/index.html")
         self.assertEqual(r.status_code, 200)
@@ -178,21 +178,21 @@ class TestStaticHTTPServer(unittest.TestCase):
         content_type = r.headers.get("Content-Type")
         self.assertEqual(content_type, "text/html")
 
-    def test_method_not_allowed(self):
+    def test_method_not_allowed(self) -> None:
         """Method not allowed"""
         r = requests.post(f"{self.host}:{self.port}/index.html")
         self.assertEqual(r.status_code, 405)
         allow = r.headers.get("Allow")
         self.assertEqual(allow, "GET, HEAD")
 
-    def test_filetype_html(self):
+    def test_filetype_html(self) -> None:
         """Content-Type for .html"""
         r = requests.get(f"{self.host}:{self.port}/index.html")
         self.assertEqual(r.status_code, 200)
         ctype = r.headers.get("Content-Type")
         self.assertEqual(ctype, "text/html")
 
-    def test_filetype_png(self):
+    def test_filetype_png(self) -> None:
         """Content-Type for .png"""
         r = requests.get(f"{self.host}:{self.port}/kitano.png")
         self.assertEqual(r.status_code, 200)
@@ -207,7 +207,7 @@ suite.addTest(a)
 
 
 class NewResult(unittest.TextTestResult):
-    def getDescription(self, test):
+    def getDescription(self, test) -> str:  # type: ignore
         doc_first_line = test.shortDescription()
         return doc_first_line or ""
 
