@@ -54,7 +54,7 @@ class StaticHTTPRequestHandler(BaseHTTPRequestHandler):  # type:ignore
         headers = {
             "Server": "too simple to live service",
             "Date": datetime.datetime.now().strftime("%a, %d %b %Y %H:%m:%S"),
-            "Content-Length": 0,
+            "Content-Length": "0",
             "Allow": "GET, HEAD",
         }
 
@@ -66,7 +66,7 @@ class StaticHTTPRequestHandler(BaseHTTPRequestHandler):  # type:ignore
         try:
             with (document_root / url_normalize(request.url.decode())).open("rb") as f:
                 data = f.read()
-                headers["Content-Length"] = len(data)
+                headers["Content-Length"] = str(len(data))
                 headers["Content-Type"] = CONTENT_TYPES_BY_EXT.get(
                     url_normalize(request.url.decode()).rsplit(".", 1)[1], ""
                 )
@@ -88,9 +88,11 @@ class StaticServer(HTTPServer):  # type:ignore
         backlog_size: int = 1,
         max_workers: int = 1,
         timeout: tp.Optional[float] = None,
-        request_handler_cls: tp.Type[BaseRequestHandler] = StaticHTTPRequestHandler,
+        request_handler_cls: tp.Type[BaseRequestHandler] = StaticHTTPRequestHandler,  # type:ignore
     ):
-        super().__init__(host, port, backlog_size, max_workers, timeout, request_handler_cls)
+        super().__init__(
+            host, port, backlog_size, max_workers, timeout, request_handler_cls
+        )  # type:ignore
         self.document_root = document_root
 
 
@@ -101,6 +103,6 @@ if __name__ == "__main__":
         max_workers=5,
         timeout=2,
         document_root=document_root,
-        request_handler_cls=StaticHTTPRequestHandler,
+        request_handler_cls=StaticHTTPRequestHandler,  # type:ignore
     )
     server.serve_forever()
