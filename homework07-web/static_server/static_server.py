@@ -91,8 +91,8 @@ class StaticServer(HTTPServer):  # type:ignore
         request_handler_cls: tp.Type[BaseRequestHandler] = StaticHTTPRequestHandler,  # type:ignore
     ):
         super().__init__(
-            host, port, backlog_size, max_workers, timeout, request_handler_cls
-        )  # type:ignore
+            host, port, backlog_size, max_workers, timeout, request_handler_cls  # type:ignore
+        )
         self.document_root = document_root
 
 
