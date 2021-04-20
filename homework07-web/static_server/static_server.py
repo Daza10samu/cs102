@@ -8,8 +8,6 @@ from urllib.parse import unquote, urlparse
 
 from httpserver import BaseHTTPRequestHandler, HTTPRequest, HTTPResponse, HTTPServer
 
-CONTENT_TYPES_BY_EXT = {"html": "text/html", "png": "image/png"}
-
 
 def path_resolver(path: str) -> str:
     splitted = path.split("/")
@@ -64,11 +62,12 @@ class StaticHTTPRequestHandler(BaseHTTPRequestHandler):  # type:ignore
             return HTTPResponse(405, headers, b"")
 
         try:
-            with (document_root / url_normalize(request.url.decode())).open("rb") as f:
+            file_path = document_root / url_normalize(request.url.decode())
+            with file_path.open("rb") as f:
                 data = f.read()
                 headers["Content-Length"] = str(len(data))
-                headers["Content-Type"] = CONTENT_TYPES_BY_EXT.get(
-                    url_normalize(request.url.decode()).rsplit(".", 1)[1], ""
+                headers["Content-Type"] = mimetypes.types_map.get(
+                    "." + url_normalize(request.url.decode()).rsplit(".", 1)[1], ""
                 )
 
                 if request.method == b"HEAD":

@@ -3,7 +3,9 @@ from __future__ import annotations
 import socket
 import typing as tp
 
-from .parsers import RequestParserError, request_parser
+from httptools import HttpRequestParser
+from httptools.parser.errors import *
+
 from .request import HTTPRequest
 from .response import HTTPResponse
 
@@ -44,6 +46,8 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
 
     def __init__(self, *args, **kwargs) -> None:  # type:ignore
         super().__init__(*args, **kwargs)
+        self.parser = HttpRequestParser(self)
+
         self._url: bytes = b""
         self._headers: tp.Dict[bytes, bytes] = {}
         self._body: bytes = b""
@@ -63,15 +67,23 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
         self.close()
 
     def parse_request(self) -> tp.Optional[HTTPRequest]:
-        total_data = b""
         try:
-            total_data = self.socket.recv(65536)
-        except (socket.timeout, BlockingIOError):
+            data = self.socket.recv(65536)
+            self.parser.feed_data(data)
+        except (
+            socket.timeout,
+            BlockingIOError,
+            HttpParserError,  # type: ignore
+            HttpParserInvalidMethodError,  # type: ignore
+            HttpParserInvalidURLError,  # type: ignore
+            HttpParserCallbackError,  # type: ignore
+            HttpParserInvalidStatusError,  # type: ignore
+            HttpParserUpgrade,  # type: ignore
+        ):
             pass
-        try:
-            return request_parser(total_data)
-        except RequestParserError:
-            return None
+        if self._parsed:
+            return HTTPRequest(self.parser.get_method(), self._url, self._headers, self._body)
+        return None
 
     def handle_request(self, request: HTTPRequest) -> HTTPResponse:
         return HTTPResponse(200, {}, b"ok")
@@ -80,13 +92,13 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
         self.socket.sendall(response.to_http1())
 
     def on_url(self, url: bytes) -> None:
-        pass
+        self._url = url
 
     def on_header(self, name: bytes, value: bytes) -> None:
-        pass
+        self._headers[name] = value
 
     def on_body(self, body: bytes) -> None:
-        pass
+        self._body += body
 
     def on_message_complete(self) -> None:
-        pass
+        self._parsed = True

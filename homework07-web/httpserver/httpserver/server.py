@@ -1,3 +1,4 @@
+import concurrent.futures
 import socket
 import threading
 import typing as tp
@@ -35,14 +36,19 @@ class TCPServer:
         sock.listen(self.backlog_size)
 
         with ThreadPoolExecutor(max_workers=self.max_workers) as exec:
+            futures = []
 
             try:
-                while 1:
+                while True:
                     conn, addr = sock.accept()
                     conn.settimeout(self.timeout)
-                    exec.submit(self.handle_accept, conn)
+                    futures.append(exec.submit(self.handle_accept, conn))
             except KeyboardInterrupt:
+                for future in futures:
+                    future.cancel()
+                concurrent.futures.wait(futures, timeout=None)
                 print("Exit")
+
         sock.close()
 
     def handle_accept(self, server_socket: socket.socket) -> None:
