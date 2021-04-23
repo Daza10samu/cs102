@@ -46,7 +46,7 @@ class TCPServer:
             except KeyboardInterrupt:
                 for future in futures:
                     future.cancel()
-                concurrent.futures.wait(futures, timeout=None)
+                concurrent.futures.wait(futures, timeout=self.timeout)
                 print("Exit")
 
         sock.close()

@@ -25,8 +25,6 @@ def path_resolver(path: str) -> str:
     try:
         if "." in curr[-2] and curr[-1] == "":
             del curr[-1]
-        elif curr[-1] == "":
-            curr[-1] = "index.html"
     except IndexError:
         pass
     curr[-1] = curr[-1].split("?", 1)[0]
@@ -34,13 +32,16 @@ def path_resolver(path: str) -> str:
 
 
 def url_normalize(path: str) -> str:
-    return path_resolver(path.replace("//", "/"))[1:].replace("%20", " ")
+    normalized_path = path_resolver(path.replace("//", "/"))[1:]
+    return unquote(normalized_path) + (
+        "index.html" if len(normalized_path) == 0 or normalized_path[-1] == "/" else ""
+    )
 
 
 class StaticHTTPRequestHandler(BaseHTTPRequestHandler):  # type:ignore
     def __init__(self, *args, **kwargs) -> None:  # type:ignore
         super().__init__(*args, **kwargs)
-        self.document_root = document_root
+        self.document_root = pathlib.Path(document_root)
         self._url: bytes = b""
         self._headers: tp.Dict[bytes, bytes] = {}
         self._body: bytes = b""
@@ -52,7 +53,6 @@ class StaticHTTPRequestHandler(BaseHTTPRequestHandler):  # type:ignore
         headers = {
             "Server": "too simple to live service",
             "Date": datetime.datetime.now().strftime("%a, %d %b %Y %H:%m:%S"),
-            "Content-Length": "0",
             "Allow": "GET, HEAD",
         }
 
@@ -61,8 +61,14 @@ class StaticHTTPRequestHandler(BaseHTTPRequestHandler):  # type:ignore
         if request.method not in (b"GET", b"HEAD"):
             return HTTPResponse(405, headers, b"")
 
+        if request.method == b"HEAD":
+            headers["Content-Type"] = mimetypes.types_map.get(
+                "." + url_normalize(request.url.decode()).rsplit(".", 1)[1], ""
+            )
+            return HTTPResponse(200, headers, b"")
+
         try:
-            file_path = document_root / url_normalize(request.url.decode())
+            file_path = self.document_root / url_normalize(request.url.decode())
             with file_path.open("rb") as f:
                 data = f.read()
                 headers["Content-Length"] = str(len(data))
@@ -70,11 +76,9 @@ class StaticHTTPRequestHandler(BaseHTTPRequestHandler):  # type:ignore
                     "." + url_normalize(request.url.decode()).rsplit(".", 1)[1], ""
                 )
 
-                if request.method == b"HEAD":
-                    return HTTPResponse(200, headers, b"")
                 return HTTPResponse(200, headers, data)
 
-        except (FileNotFoundError, NameError):
+        except FileNotFoundError:
             return HTTPResponse(404, headers, b"")
 
 

@@ -50,7 +50,7 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
 
         self._url: bytes = b""
         self._headers: tp.Dict[bytes, bytes] = {}
-        self._body: bytes = b""
+        self._body_list: tp.List[bytes] = []
         self._parsed = False
 
     def handle(self) -> None:
@@ -67,12 +67,20 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
         self.close()
 
     def parse_request(self) -> tp.Optional[HTTPRequest]:
+        data: tp.List[bytes] = []
         try:
-            data = self.socket.recv(65536)
-            self.parser.feed_data(data)
+            while True:
+                data.append(self.socket.recv(65536))
+                if data[-1] == b"":
+                    break
         except (
             socket.timeout,
             BlockingIOError,
+        ):
+            pass
+        try:
+            self.parser.feed_data(b"".join(data))
+        except (
             HttpParserError,  # type: ignore
             HttpParserInvalidMethodError,  # type: ignore
             HttpParserInvalidURLError,  # type: ignore
@@ -80,9 +88,11 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
             HttpParserInvalidStatusError,  # type: ignore
             HttpParserUpgrade,  # type: ignore
         ):
-            pass
+            return None
         if self._parsed:
-            return HTTPRequest(self.parser.get_method(), self._url, self._headers, self._body)
+            return HTTPRequest(
+                self.parser.get_method(), self._url, self._headers, b"".join(self._body_list)
+            )
         return None
 
     def handle_request(self, request: HTTPRequest) -> HTTPResponse:
@@ -98,7 +108,7 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
         self._headers[name] = value
 
     def on_body(self, body: bytes) -> None:
-        self._body += body
+        self._body_list.append(body)
 
     def on_message_complete(self) -> None:
         self._parsed = True

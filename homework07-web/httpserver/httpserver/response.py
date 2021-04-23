@@ -1,8 +1,6 @@
 import dataclasses
-import http
+import http.client
 import typing as tp
-
-code_to_status = {200: "OK", 400: "Bad Request", 404: "Not Found"}
 
 
 @dataclasses.dataclass
@@ -13,7 +11,7 @@ class HTTPResponse:
 
     def to_http1(self) -> bytes:
         return (
-            f"HTTP/1.1 {self.status} {code_to_status.get(self.status, '')}\r\n"
+            f"HTTP/1.1 {self.status} {http.client.responses[self.status]}\r\n"
             + "\r\n".join(f"{x}: {self.headers[x]}" for x in self.headers)
             + "\r\n\r\n"
         ).encode() + self.body
