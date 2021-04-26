@@ -11,5 +11,5 @@ class WSGIResponse(HTTPResponse):
     def start_response(
         self, status: str, response_headers: tp.List[tp.Tuple[str, str]], exc_info=None
     ) -> None:
-        # Сохранить статус и заголовки ответа
-        pass
+        self.status = int(status.split(" ", 1)[0])
+        self.headers = {elem[0]: elem[1] for elem in response_headers}
