@@ -27,12 +27,15 @@ def path_resolver(path: str) -> str:
             del curr[-1]
     except IndexError:
         pass
-    curr[-1] = curr[-1].split("?", 1)[0]
+    if curr:
+        curr[-1] = curr[-1].split("?", 1)[0]
     return "/".join(curr)
 
 
 def url_normalize(path: str) -> str:
-    normalized_path = path_resolver(path.replace("//", "/"))[1:]
+    normalized_path = path_resolver(path.replace("//", "/"))
+    if normalized_path[0] == "/":
+        normalized_path = normalized_path[1:]
     return unquote(normalized_path) + (
         "index.html" if len(normalized_path) == 0 or normalized_path[-1] == "/" else ""
     )
@@ -41,7 +44,7 @@ def url_normalize(path: str) -> str:
 class StaticHTTPRequestHandler(BaseHTTPRequestHandler):  # type:ignore
     def __init__(self, *args, **kwargs) -> None:  # type:ignore
         super().__init__(*args, **kwargs)
-        self.document_root = pathlib.Path(document_root)
+        self.document_root: pathlib.Path = self.server.document_root  # type: ignore
         self._url: bytes = b""
         self._headers: tp.Dict[bytes, bytes] = {}
         self._body: bytes = b""

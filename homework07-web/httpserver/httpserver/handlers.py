@@ -50,7 +50,7 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
 
         self._url: bytes = b""
         self._headers: tp.Dict[bytes, bytes] = {}
-        self._body_list: tp.List[bytes] = []
+        self._body: bytes = b""
         self._parsed = False
 
     def handle(self) -> None:
@@ -67,31 +67,30 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
         self.close()
 
     def parse_request(self) -> tp.Optional[HTTPRequest]:
-        data: tp.List[bytes] = []
-        try:
-            while True:
-                data.append(self.socket.recv(65536))
-                if data[-1] == b"":
-                    break
-        except (
-            socket.timeout,
-            BlockingIOError,
-        ):
-            pass
-        try:
-            self.parser.feed_data(b"".join(data))
-        except (
-            HttpParserError,  # type: ignore
-            HttpParserInvalidMethodError,  # type: ignore
-            HttpParserInvalidURLError,  # type: ignore
-            HttpParserCallbackError,  # type: ignore
-            HttpParserInvalidStatusError,  # type: ignore
-            HttpParserUpgrade,  # type: ignore
-        ):
-            return None
+        while not self._parsed:
+            try:
+                data = self.socket.recv(65536)
+            except (
+                socket.timeout,
+                BlockingIOError,
+            ):
+                break
+            if data == b"":
+                break
+            try:
+                self.parser.feed_data(data)
+            except (
+                HttpParserError,  # type: ignore
+                HttpParserInvalidMethodError,  # type: ignore
+                HttpParserInvalidURLError,  # type: ignore
+                HttpParserCallbackError,  # type: ignore
+                HttpParserInvalidStatusError,  # type: ignore
+                HttpParserUpgrade,  # type: ignore
+            ):
+                break
         if self._parsed:
             return self.request_klass(
-                self.parser.get_method(), self._url, self._headers, b"".join(self._body_list)
+                self.parser.get_method(), self._url, self._headers, self._body
             )
         return None
 
@@ -108,7 +107,7 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
         self._headers[name] = value
 
     def on_body(self, body: bytes) -> None:
-        self._body_list.append(body)
+        self._body = body
 
     def on_message_complete(self) -> None:
         self._parsed = True
