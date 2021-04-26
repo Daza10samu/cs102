@@ -90,13 +90,13 @@ class BaseHTTPRequestHandler(BaseRequestHandler):
         ):
             return None
         if self._parsed:
-            return HTTPRequest(
+            return self.request_klass(
                 self.parser.get_method(), self._url, self._headers, b"".join(self._body_list)
             )
         return None
 
     def handle_request(self, request: HTTPRequest) -> HTTPResponse:
-        return HTTPResponse(200, {}, b"ok")
+        return self.response_klass(200, {}, b"ok")
 
     def handle_response(self, response: HTTPResponse) -> None:
         self.socket.sendall(response.to_http1())
