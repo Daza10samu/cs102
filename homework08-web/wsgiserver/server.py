@@ -1,6 +1,6 @@
+import socket
 import typing
 import typing as tp
-import socket
 
 from httpserver import BaseHTTPRequestHandler, HTTPServer
 from httptools import HttpRequestParser
@@ -12,12 +12,12 @@ Address = tp.Tuple[str, int]
 
 
 class ApplicationType:
-    def __call__(self, *args, **kwargs) -> typing.Iterable[bytes]:
+    def __call__(self, *args: tp.Tuple, **kwargs) -> typing.Iterable[bytes]:  # type:ignore
         pass
 
 
-class WSGIServer(HTTPServer):
-    def __init__(self, *args, **kwargs) -> None:
+class WSGIServer(HTTPServer):  # type:ignore
+    def __init__(self, *args, **kwargs) -> None:  # type:ignore
         if "request_handler_cls" not in kwargs:
             kwargs["request_handler_cls"] = WSGIRequestHandler
         if "timeout" not in kwargs:
@@ -32,7 +32,7 @@ class WSGIServer(HTTPServer):
         return self.app
 
 
-class WSGIRequestHandler(BaseHTTPRequestHandler):
+class WSGIRequestHandler(BaseHTTPRequestHandler):  # type:ignore
     request_klass = WSGIRequest
     response_klass = WSGIResponse
 
@@ -54,6 +54,6 @@ class WSGIRequestHandler(BaseHTTPRequestHandler):
         environ["SERVER_PORT"] = self.address[1]
         response = WSGIResponse()
         app = self.server.get_app()
-        body_iterable = app(environ, response.start_response)
+        body_iterable = app(environ, response.start_response)  # type:ignore
         response.body = b"".join(body_iterable)
         return response

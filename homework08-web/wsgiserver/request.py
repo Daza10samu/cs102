@@ -1,7 +1,7 @@
 import dataclasses
+import io
 import sys
 import typing as tp
-import io
 from urllib.parse import unquote
 
 from httpserver import HTTPRequest
@@ -37,7 +37,7 @@ def url_normalize(path: str) -> str:
 
 
 @dataclasses.dataclass
-class WSGIRequest(HTTPRequest):
+class WSGIRequest(HTTPRequest):  # type:ignore
     def to_environ(self) -> tp.Dict[str, tp.Any]:
         environ = {
             "REQUEST_METHOD": self.method.decode(),
@@ -75,4 +75,4 @@ class WSGIRequest(HTTPRequest):
         return url_normalize(self.url.split(b"?", 1)[0].decode())
 
     def _get_query_string(self) -> str:
-        return self.url.split(b"?", 1)[1].decode() if b"?" in self.url else ""
+        return self.url.split(b"?", 1)[1].decode() if b"?" in self.url else ""  # type:ignore
