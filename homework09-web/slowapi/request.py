@@ -16,5 +16,4 @@ class Request:
         return self.body.read().decode()
 
     def json(self) -> tp.Optional[tp.Dict[str, tp.Any]]:
-        return json.loads(self.text())
-
+        return json.loads(self.text())  # type:ignore

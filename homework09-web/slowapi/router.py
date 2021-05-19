@@ -8,4 +8,3 @@ class Route:
     path: str
     method: str
     func: tp.Callable
-

@@ -4,7 +4,7 @@ import typing as tp
 from urllib.parse import parse_qsl
 
 from slowapi.request import Request
-from slowapi.response import Response, JsonResponse
+from slowapi.response import JsonResponse, Response
 from slowapi.router import Route
 
 
@@ -14,22 +14,30 @@ class SlowAPI:
         self.middlewares = []
 
     def __call__(self, environ, start_response):
-        curr_routes = list(filter(
-            lambda route: environ["PATH_INFO"] == route.path and route.method == environ["REQUEST_METHOD"],
-            self.routes))
+        curr_routes = list(
+            filter(
+                lambda route: environ["PATH_INFO"] == route.path
+                and route.method == environ["REQUEST_METHOD"],
+                self.routes,
+            )
+        )
         if len(curr_routes) == 0:
-            curr_routes = list(filter(
-                lambda route: environ["PATH_INFO"].rsplit("/", 1)[0] ==
-                              route.path.rsplit("/", 1)[0] and route.method == environ["REQUEST_METHOD"],
-                self.routes))
+            curr_routes = list(
+                filter(
+                    lambda route: environ["PATH_INFO"].rsplit("/", 1)[0]
+                    == route.path.rsplit("/", 1)[0]
+                    and route.method == environ["REQUEST_METHOD"],
+                    self.routes,
+                )
+            )
             if len(curr_routes) == 0:
                 raise Exception("Routes error")
 
         route = curr_routes[0]
 
         if "{" in route.path:
-            args = environ["PATH_INFO"][route.path.find("{"):].split("&")
-            if len(args) == 1 and args[0] == '':
+            args = environ["PATH_INFO"][route.path.find("{") :].split("&")
+            if len(args) == 1 and args[0] == "":
                 args = []
         else:
             args = []
@@ -40,9 +48,13 @@ class SlowAPI:
             if len(i.split("=", 1)) > 1:
                 query[i.split("=", 1)[0]] = i.split("=", 1)[1]
 
-        request = Request(environ["PATH_INFO"], environ["REQUEST_METHOD"], query, environ["wsgi.input"], environ)
+        request = Request(
+            environ["PATH_INFO"], environ["REQUEST_METHOD"], query, environ["wsgi.input"], environ
+        )
         response = route.func(request, *args)
-        start_response(f"{response.status} {http.client.responses[response.status]}", response.headers)
+        start_response(
+            f"{response.status} {http.client.responses[response.status]}", response.headers
+        )
 
         if isinstance(response, JsonResponse):
             return [json.dumps(response.data).encode()]
