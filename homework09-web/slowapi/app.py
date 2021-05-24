@@ -44,9 +44,8 @@ class SlowAPI:
 
         query_string = environ["QUERY_STRING"]
         query: tp.Dict[str, str] = dict()
-        for i in query_string.split("&"):
-            if len(i.split("=", 1)) > 1:
-                query[i.split("=", 1)[0]] = i.split("=", 1)[1]
+        for i in parse_qsl(query_string):
+            query[str(i[0])] = str(i[1])
 
         request = Request(
             environ["PATH_INFO"], environ["REQUEST_METHOD"], query, environ["wsgi.input"], environ
