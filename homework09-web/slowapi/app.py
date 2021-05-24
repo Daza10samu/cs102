@@ -40,8 +40,10 @@ class SlowAPI:
                 curr_routes.append(route)
         if len(curr_routes) == 0:
             for route in self.routes:
-                if route.method == environ["REQUEST_METHOD"] and environ["PATH_INFO"].rsplit("/", 1)[0] == \
-                        route.path.rsplit("/", 1)[0]:
+                if (
+                    route.method == environ["REQUEST_METHOD"]
+                    and environ["PATH_INFO"].rsplit("/", 1)[0] == route.path.rsplit("/", 1)[0]
+                ):
                     curr_routes.append(route)
 
             if len(curr_routes) == 0:
@@ -51,7 +53,7 @@ class SlowAPI:
 
     def _get_args(self, route: Route, environ) -> tp.List[str]:
         if "{" in route.path:
-            args = environ["PATH_INFO"][route.path.find("{"):].split("&")
+            args = environ["PATH_INFO"][route.path.find("{") :].split("&")
             if len(args) == 1 and args[0] == "":
                 args = []
         else:
