@@ -62,37 +62,26 @@ class SlowAPI:
             return [str(response.body).encode()]
 
     def route(self, path=None, method=None, **options):
-        self.routes.append(Route(path, method, options["func"]))
-
-    def get(self, path=None, **options):
         def inner(func):
+            self.routes.append(Route(path, method, func))
             return self.route(path, method="GET", func=func)
 
         return inner
 
-    def post(self, path=None, **options):
-        def inner(func):
-            return self.route(path, method="POST", func=func)
+    def get(self, path=None, **options):
+        return self.route(path, method="GET", **options)
 
-        return inner
+    def post(self, path=None, **options):
+        return self.route(path, method="POST", **options)
 
     def patch(self, path=None, **options):
-        def inner(func):
-            return self.route(path, method="PATCH", func=func)
-
-        return inner
+        return self.route(path, method="PATCH", **options)
 
     def put(self, path=None, **options):
-        def inner(func):
-            return self.route(path, method="PUT", func=func)
-
-        return inner
+        return self.route(path, method="PUT", **options)
 
     def delete(self, path=None, **options):
-        def inner(func):
-            return self.route(path, method="DELETE", func=func)
-
-        return inner
+        return self.route(path, method="DELETE", **options)
 
     def add_middleware(self, middleware) -> None:
         self.middlewares.append(middleware)
