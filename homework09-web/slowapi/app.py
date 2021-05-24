@@ -56,10 +56,7 @@ class SlowAPI:
             f"{response.status} {http.client.responses[response.status]}", response.headers
         )
 
-        if isinstance(response, JsonResponse):
-            return [json.dumps(response.data).encode()]
-        else:
-            return [str(response.body).encode()]
+        return [str(response).encode()]
 
     def route(self, path=None, method=None, **options):
         def inner(func):

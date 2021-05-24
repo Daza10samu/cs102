@@ -10,6 +10,9 @@ class Response:
     headers: tp.Dict[str, str] = dataclasses.field(default_factory=dict)
     body: tp.Optional[tp.Any] = None
 
+    def __str__(self):
+        return str(self.body)
+
 
 @dataclasses.dataclass
 class JsonResponse(Response):
@@ -17,3 +20,6 @@ class JsonResponse(Response):
     data: tp.Dict[str, tp.Any] = dataclasses.field(default_factory=dict)
     status: int = 200
     serializer: tp.Optional[tp.Callable] = None
+
+    def __str__(self):
+        return json.dumps(self.data)
