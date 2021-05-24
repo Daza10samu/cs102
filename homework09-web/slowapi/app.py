@@ -17,7 +17,7 @@ class SlowAPI:
         curr_routes = list(
             filter(
                 lambda route: environ["PATH_INFO"] == route.path
-                and route.method == environ["REQUEST_METHOD"],
+                              and route.method == environ["REQUEST_METHOD"],
                 self.routes,
             )
         )
@@ -25,8 +25,8 @@ class SlowAPI:
             curr_routes = list(
                 filter(
                     lambda route: environ["PATH_INFO"].rsplit("/", 1)[0]
-                    == route.path.rsplit("/", 1)[0]
-                    and route.method == environ["REQUEST_METHOD"],
+                                  == route.path.rsplit("/", 1)[0]
+                                  and route.method == environ["REQUEST_METHOD"],
                     self.routes,
                 )
             )
@@ -35,12 +35,7 @@ class SlowAPI:
 
         route = curr_routes[0]
 
-        if "{" in route.path:
-            args = environ["PATH_INFO"][route.path.find("{") :].split("&")
-            if len(args) == 1 and args[0] == "":
-                args = []
-        else:
-            args = []
+        args = self._get_args(route, environ)
 
         query_string = environ["QUERY_STRING"]
         query: tp.Dict[str, str] = dict()
@@ -56,6 +51,15 @@ class SlowAPI:
         )
 
         return [str(response).encode()]
+
+    def _get_args(self, route: Route, environ) -> tp.List[str]:
+        if "{" in route.path:
+            args = environ["PATH_INFO"][route.path.find("{"):].split("&")
+            if len(args) == 1 and args[0] == "":
+                args = []
+        else:
+            args = []
+        return args
 
     def route(self, path=None, method=None, **options):
         def inner(func):
