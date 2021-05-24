@@ -14,26 +14,7 @@ class SlowAPI:
         self.middlewares = []
 
     def __call__(self, environ, start_response):
-        curr_routes = list(
-            filter(
-                lambda route: environ["PATH_INFO"] == route.path
-                              and route.method == environ["REQUEST_METHOD"],
-                self.routes,
-            )
-        )
-        if len(curr_routes) == 0:
-            curr_routes = list(
-                filter(
-                    lambda route: environ["PATH_INFO"].rsplit("/", 1)[0]
-                                  == route.path.rsplit("/", 1)[0]
-                                  and route.method == environ["REQUEST_METHOD"],
-                    self.routes,
-                )
-            )
-            if len(curr_routes) == 0:
-                raise Exception("Routes error")
-
-        route = curr_routes[0]
+        route = self._find_route(environ)
 
         args = self._get_args(route, environ)
 
@@ -51,6 +32,22 @@ class SlowAPI:
         )
 
         return [str(response).encode()]
+
+    def _find_route(self, environ) -> Route:
+        curr_routes = []
+        for route in self.routes:
+            if route.method == environ["REQUEST_METHOD"] and environ["PATH_INFO"] == route.path:
+                curr_routes.append(route)
+        if len(curr_routes) == 0:
+            for route in self.routes:
+                if route.method == environ["REQUEST_METHOD"] and environ["PATH_INFO"].rsplit("/", 1)[0] == \
+                        route.path.rsplit("/", 1)[0]:
+                    curr_routes.append(route)
+
+            if len(curr_routes) == 0:
+                raise Exception("Routes error")
+
+        return curr_routes[0]
 
     def _get_args(self, route: Route, environ) -> tp.List[str]:
         if "{" in route.path:
