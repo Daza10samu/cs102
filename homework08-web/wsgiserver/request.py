@@ -31,9 +31,7 @@ def path_resolver(path: str) -> str:
 
 def url_normalize(path: str) -> str:
     normalized_path = path_resolver(path.replace("//", "/"))
-    return unquote(normalized_path) + (
-        "index.html" if len(normalized_path) == 0 or normalized_path[-1] == "/" else ""
-    )
+    return unquote(normalized_path)
 
 
 @dataclasses.dataclass
