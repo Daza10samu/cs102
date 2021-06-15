@@ -41,7 +41,11 @@ class Note(Base):  # type:ignore
             )
             session.commit()
 
-            note = session.execute(select(Note).where(and_(Note.id == id, Note.user_id == user_id))).fetchall()[0].Note
+            note = (
+                session.execute(select(Note).where(and_(Note.id == id, Note.user_id == user_id)))
+                .fetchall()[0]
+                .Note
+            )
 
             return note.id, note.title, note.text
 
