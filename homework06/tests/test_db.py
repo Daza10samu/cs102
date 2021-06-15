@@ -1,6 +1,6 @@
 import sqlite3
 
-from db import (
+from back.db import (
     add_news,
     change_label,
     create_table,
