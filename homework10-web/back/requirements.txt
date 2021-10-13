@@ -1,0 +1,10 @@
+psycopg2
+pg8000
+sqlalchemy
+postgres
+fastapi
+uvicorn
+passlib
+python-jose
+python-multipart
+bcrypt

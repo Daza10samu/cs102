@@ -37,7 +37,7 @@ class WSGIRequestHandler(BaseHTTPRequestHandler):  # type:ignore
     response_klass = WSGIResponse
 
     def __init__(self, socket: socket.socket, address: Address, server: WSGIServer) -> None:
-        self.socket = socket
+        self.client_socket = socket
         self.address = address
         self.server = server
 
@@ -45,7 +45,7 @@ class WSGIRequestHandler(BaseHTTPRequestHandler):  # type:ignore
 
         self._url: bytes = b""
         self._headers: tp.Dict[bytes, bytes] = {}
-        self._body_list: tp.List[bytes] = []
+        self._body: bytes = b""
         self._parsed = False
 
     def handle_request(self, request: WSGIRequest) -> WSGIResponse:
